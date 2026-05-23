@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduLex — Assistente Jurídico-Pedagógico</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f3460;--navy2:#16213e;--accent:#e94560;--gold:#f5a623;
+  --green:#22c55e;--red:#ef4444;--purple:#7c3aed;--blue:#3b82f6;
+  --bg:#f0f2f7;--card:#fff;--border:#e2e8f0;--muted:#94a3b8;
+  --sidebar:248px; --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:#1e293b;min-height:100vh;font-size:13.5px}
+#app{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--navy2);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-brand{font-size:16px;font-weight:800;letter-spacing:-.3px;color:#fbbf24;display:flex;align-items:center;gap:7px}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;letter-spacing:.5px}
+.sb-escola{font-size:11px;color:rgba(255,255,255,.5);margin-top:6px;background:rgba(255,255,255,.06);border-radius:5px;padding:4px 8px;cursor:pointer;transition:.15s}
+.sb-escola:hover{background:rgba(255,255,255,.1)}
+.nav-s{padding:10px 0}
+.nav-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:8px 18px 3px}
+.nav-i{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;font-size:12.5px;color:rgba(255,255,255,.6);transition:all .15s;border-left:3px solid transparent;position:relative}
+.nav-i:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-i.active{background:rgba(233,69,96,.18);color:#fff;border-left-color:var(--accent);font-weight:600}
+.nav-i .ni{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{position:absolute;right:14px;background:var(--accent);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center}
+.sb-footer{margin-top:auto;padding:12px 16px;font-size:10px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.07);line-height:1.7}
+.sb-version{color:rgba(255,255,255,.35);font-size:10px;font-weight:600}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tb-title{font-size:15px;font-weight:800;color:var(--navy2);display:flex;align-items:center;gap:8px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tag{background:#eef2ff;color:#4338ca;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
+.content{padding:22px;flex:1}
+
+/* ── PAGES ── */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-title{font-size:13px;font-weight:700;color:var(--navy2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title span{color:var(--muted);font-weight:400;font-size:12px;margin-left:auto}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+
+/* ── STATS ── */
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.stat-l{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.stat-v{font-size:26px;font-weight:800;color:var(--navy2);margin:4px 0 2px;letter-spacing:-1px}
+.stat-s{font-size:11px;color:var(--muted)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.b-g{background:#dcfce7;color:#15803d}
+.b-r{background:#fee2e2;color:#b91c1c}
+.b-o{background:#ffedd5;color:#c2410c}
+.b-b{background:#dbeafe;color:#1d4ed8}
+.b-p{background:#ede9fe;color:#6d28d9}
+.b-y{background:#fef9c3;color:#92400e}
+.b-gray{background:#f1f5f9;color:#64748b}
+.b-navy{background:#e8edf5;color:#0f3460}
+
+/* ── ALERTS ── */
+.al{padding:12px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;line-height:1.55}
+.al-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.al-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.al-err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+.al-warn{background:#fffbeb;border:1px solid #fde68a;color:#b45309}
+.al-info{background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f8fafc;font-weight:700;color:#475569;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.3px}
+td{padding:9px 12px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+tr:hover td{background:#fafbfd}
+.empty-row td{text-align:center;color:var(--muted);padding:32px;font-style:italic;font-size:13px}
+
+/* ── FORMS ── */
+.fg{margin-bottom:13px}
+.fl{font-size:11px;font-weight:700;color:#475569;margin-bottom:4px;display:block;letter-spacing:.2px}
+.fc{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:8px 11px;font-size:12.5px;outline:none;background:#fff;color:var(--navy2);font-family:var(--font);transition:.15s}
+.fc:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+textarea.fc{resize:vertical;min-height:70px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
+.btn-p{background:var(--navy2);color:#fff}.btn-p:hover{background:#0d2244}
+.btn-s{background:var(--green);color:#fff}.btn-s:hover{background:#16a34a}
+.btn-a{background:var(--accent);color:#fff}.btn-a:hover{background:#c73651}
+.btn-o{background:#fff;border:1.5px solid var(--border);color:var(--navy2)}.btn-o:hover{background:#f8fafc}
+.btn-del{background:#fff;border:1.5px solid #fecaca;color:#dc2626}.btn-del:hover{background:#fef2f2}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:6px}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:5px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+/* ── RESULT PANEL ── */
+.rp{border:2px solid var(--border);border-radius:12px;overflow:hidden;display:none;margin-top:14px;animation:fadeIn .2s}
+.rp.show{display:block}
+.rp-h{padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.rp-ok{background:#f0fdf4;border-bottom:1px solid #bbf7d0}
+.rp-err{background:#fef2f2;border-bottom:1px solid #fecaca}
+.rp-warn{background:#fffbeb;border-bottom:1px solid #fde68a}
+.rp-t{font-size:14px;font-weight:800}
+.rp-tok{color:#15803d}.rp-terr{color:#dc2626}.rp-twarn{color:#b45309}
+.rp-b{padding:16px 18px}
+.legal{font-size:10.5px;background:#f1f5f9;border-left:3px solid #94a3b8;padding:5px 10px;border-radius:0 5px 5px 0;color:#475569;margin-top:8px;font-family:var(--mono)}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;gap:8px;margin-bottom:16px}
+.si{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12.5px;outline:none;font-family:var(--font);color:var(--navy2)}
+.si:focus{border-color:#6366f1}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:2px}
+.tab{padding:9px 18px;font-size:12.5px;cursor:pointer;color:var(--muted);border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:600;border-radius:6px 6px 0 0}
+.tab:hover{color:var(--navy2);background:#f8fafc}
+.tab.active{color:var(--navy2);border-bottom-color:var(--accent);background:#fff}
+.tc{display:none}.tc.active{display:block}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0f3460 0%,#1e3a5f 60%,#1a1a3e 100%);border-radius:14px;padding:28px 28px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero::after{content:'⚖️';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.06}
+.hero-title{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.hero-sub{font-size:13px;opacity:.65;max-width:520px;line-height:1.6}
+.hero-tags{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hero-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
+
+/* ── QA GRID ── */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.qa{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.qa::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--navy2),#4f46e5);opacity:0;transition:.2s}
+.qa:hover{border-color:var(--navy2);transform:translateY(-2px);box-shadow:0 4px 16px rgba(15,52,96,.12)}
+.qa:hover::before{opacity:.04}
+.qa-ico{font-size:26px;margin-bottom:8px}
+.qa-lbl{font-size:11px;font-weight:700;color:var(--navy2);line-height:1.35}
+
+/* ── PROGRESS ── */
+.pb{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:3px}
+.pf{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* ── DRAG DROP ── */
+.dropzone{border:2.5px dashed var(--border);border-radius:12px;padding:32px;text-align:center;transition:all .2s;cursor:pointer;background:#fafbfd}
+.dropzone:hover,.dropzone.dragover{border-color:#6366f1;background:#f0f0ff}
+.dz-ico{font-size:36px;margin-bottom:10px}
+.dz-title{font-size:14px;font-weight:700;color:var(--navy2);margin-bottom:4px}
+.dz-sub{font-size:12px;color:var(--muted)}
+.dz-btn{margin-top:12px}
+input[type=file]{display:none}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex;animation:fadeIn .15s}
+.modal{background:#fff;border-radius:14px;width:600px;max-height:85vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-size:17px;font-weight:800;color:var(--navy2);margin-bottom:18px}
+.modal-close{position:absolute;top:18px;right:18px;background:#f1f5f9;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#64748b}
+.modal-close:hover{background:#e2e8f0}
+
+/* ── LEGISLAÇÃO EDITOR ── */
+.leg-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;transition:.15s;position:relative}
+.leg-card:hover{border-color:#6366f1;box-shadow:0 2px 8px rgba(99,102,241,.1)}
+.leg-card-ref{font-family:var(--mono);font-size:11px;color:#6366f1;font-weight:600;margin-bottom:4px}
+.leg-card-tema{font-size:13px;font-weight:700;color:var(--navy2);margin-bottom:4px}
+.leg-card-texto{font-size:12px;color:#475569;line-height:1.55}
+.leg-card-fonte{font-size:10px;color:var(--muted);margin-top:6px}
+.leg-card-actions{position:absolute;top:14px;right:14px;display:flex;gap:5px;opacity:0;transition:.15s}
+.leg-card:hover .leg-card-actions{opacity:1}
+
+/* ── IMPORT STATUS ── */
+.import-status{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px}
+.import-file{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.import-file:last-child{border-bottom:none}
+.import-file-name{font-size:12px;font-weight:600;color:var(--navy2);display:flex;align-items:center;gap:7px}
+.import-file-info{font-size:11px;color:var(--muted)}
+
+/* ── CONFIG ── */
+.config-section{margin-bottom:22px}
+.config-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── ALERTA CARD ── */
+.alerta-card{border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:.15s}
+.alerta-card.estado-critico{border-left:4px solid var(--red)}
+.alerta-card.estado-aviso{border-left:4px solid var(--gold)}
+.alerta-card.estado-resolvido{border-left:4px solid var(--green);opacity:.6}
+.alerta-card.estado-externo{border-left:4px solid var(--blue)}
+.alerta-body{padding:13px 15px}
+.alerta-acoes{display:flex;gap:6px;padding:8px 15px;background:#f8fafc;border-top:1px solid var(--border);align-items:center}
+.alerta-acoes .estado-tag{margin-left:auto;font-size:10px;font-weight:700;color:var(--muted)}
+.btn-alerta{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .15s;font-family:var(--font)}
+.btn-alerta-del{border-color:#fecaca;color:#dc2626;background:#fff}.btn-alerta-del:hover{background:#fef2f2}
+.btn-alerta-ok{border-color:#bbf7d0;color:#15803d;background:#fff}.btn-alerta-ok:hover{background:#f0fdf4}
+.btn-alerta-ext{border-color:#bfdbfe;color:#1d4ed8;background:#fff}.btn-alerta-ext:hover{background:#eff6ff}
+
+/* ── MISC ── */
+.div{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);padding:6px 0 4px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.dr{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:#f8fafc;border-radius:7px;margin-bottom:5px;border:1px solid var(--border)}
+.dn{font-size:12px;font-weight:600;color:var(--navy2)}
+code{font-family:var(--mono);font-size:11px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:#4338ca}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.no-data{text-align:center;padding:50px 20px;color:var(--muted)}
+.no-data-ico{font-size:48px;margin-bottom:12px;display:block}
+.no-data-title{font-size:16px;font-weight:700;color:var(--navy2);margin-bottom:6px}
+.no-data-sub{font-size:13px;line-height:1.5}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy2);color:#fff;padding:12px 16px;border-radius:10px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:9px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideIn .25s ease;max-width:320px}
+.toast.ok{background:#15803d}.toast.err{background:#dc2626}.toast.warn{background:#b45309}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand">⚖️ EduLex</div>
+    <div class="sb-sub">ASSISTENTE JURÍDICO-PEDAGÓGICO</div>
+    <div class="sb-escola" onclick="nav('config')" id="sb-escola-label">⚙️ Configurar escola...</div>
+  </div>
+  <div class="nav-s">
+    <div class="nav-lbl">Principal</div>
+    <div class="nav-i active" onclick="nav('dashboard')"><span class="ni">🏠</span>Dashboard</div>
+    <div class="nav-i" onclick="nav('importar')"><span class="ni">📥</span>Importar Dados</div>
+    <div class="nav-i" onclick="nav('alunos')"><span class="ni">👥</span>Alunos<span class="nav-badge" id="nb-alunos">0</span></div>
+    <div class="nav-i" onclick="nav('percurso')"><span class="ni">📋</span>Percurso do Aluno</div>
+  </div>
+  <div class="nav-s">
+    <div class="nav-lbl">PIEPE / Exames</div>
+    <div class="nav-i" onclick="nav('piepe')"><span class="ni">📝</span>Inscrições PIEPE<span class="nav-badge" id="nb-piepe">0</span></div>
+    <div class="nav-i" onclick="nav('alertas')"><span class="ni">🔔</span>Alertas<span class="nav-badge" id="nb-alertas" style="background:var(--gold)">0</span></div>
+    <div class="nav-i" onclick="nav('ase')"><span class="ni">🆘</span>Apoio Social (ASE)</div>
+  </div>
+  <div class="nav-s">
+    <div class="nav-lbl">Validações</div>
+    <div class="nav-i" onclick="nav('pfp')"><span class="ni">🔄</span>Permutas PFP</div>
+    <div class="nav-i" onclick="nav('substituicoes')"><span class="ni">↔️</span>Substituições</div>
+    <div class="nav-i" onclick="nav('conclusao')"><span class="ni">🎓</span>Conclusão Secundário</div>
+    <div class="nav-i" onclick="nav('simulador')"><span class="ni">⚡</span>Simulador CFES</div>
+  </div>
+  <div class="nav-s">
+    <div class="nav-lbl">Administração</div>
+    <div class="nav-i" onclick="nav('legislacao')"><span class="ni">📚</span>Legislação<span class="nav-badge" id="nb-leg" style="background:#6366f1">0</span></div>
+    <div class="nav-i" onclick="nav('config')"><span class="ni">⚙️</span>Configurações</div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-version">EduLex v2.0 — dados locais</div>
+    Dados guardados no browser.<br>
+    Carregue CSVs para começar.
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<div class="topbar">
+  <div class="tb-title" id="ttitle">Dashboard</div>
+  <div class="tb-right">
+    <span class="tag" id="tag-leg">⚖️ 0 normas</span>
+    <span class="badge b-b" id="tag-ano">Ano letivo não definido</span>
+    <button class="btn btn-o btn-sm" onclick="clearAllData()" title="Limpar todos os dados">🗑️ Limpar dados</button>
+  </div>
+</div>
+<div class="content">
+
+<!-- ══════════════════════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="hero">
+    <div class="hero-title">Assistente Jurídico-Pedagógico</div>
+    <div class="hero-sub">Motor de validação automática de percursos, permutas, substituições e inscrições em exames. Importe os seus dados CSV e atualize a legislação sem necessidade de programação.</div>
+    <div class="hero-tags">
+      <span class="hero-tag">Port. 266-A/2018</span>
+      <span class="hero-tag">Port. 278/2023</span>
+      <span class="hero-tag">Reg. Provas 2026</span>
+      <span class="hero-tag">FAQ PFP 2024</span>
+      <span class="hero-tag">Dados locais — privado</span>
+    </div>
+  </div>
+
+  <div id="dash-aviso"></div>
+
+  <div class="qa-grid">
+    <div class="qa" onclick="nav('importar')"><div class="qa-ico">📥</div><div class="qa-lbl">Importar Dados CSV</div></div>
+    <div class="qa" onclick="nav('piepe')"><div class="qa-ico">📝</div><div class="qa-lbl">Inscrições PIEPE</div></div>
+    <div class="qa" onclick="nav('alertas')"><div class="qa-ico">🔔</div><div class="qa-lbl">Ver Alertas</div></div>
+    <div class="qa" onclick="nav('legislacao')"><div class="qa-ico">📚</div><div class="qa-lbl">Gerir Legislação</div></div>
+  </div>
+
+  <div class="g5" id="dash-stats" style="margin-bottom:16px"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📊 Distribuição por Curso e Ano</div>
+      <div id="dash-dist"><div class="no-data"><span class="no-data-ico">📂</span><div class="no-data-title">Sem dados</div><div class="no-data-sub">Importe o ficheiro dados-alunos.csv</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔔 Alertas Críticos PIEPE</div>
+      <div id="dash-alertas"><div class="no-data"><span class="no-data-ico">📂</span><div class="no-data-title">Sem dados</div><div class="no-data-sub">Importe o ficheiro dados-piepe.csv</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     IMPORTAR DADOS
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-importar">
+  <div class="g2">
+    <!-- Alunos -->
+    <div class="card">
+      <div class="card-title">👥 Ficheiro de Alunos <span id="alunos-file-status"></span></div>
+      <div class="al al-info" style="margin-bottom:14px">
+        <span class="al-ico">ℹ️</span>
+        <div>Formato esperado: CSV com separador <code>;</code><br>
+        Campos: <code>Processo;Nome;Curso;Ano;Regime</code> (1.ª linha = cabeçalho)</div>
+      </div>
+      <div class="dropzone" id="dz-alunos" onclick="document.getElementById('fi-alunos').click()"
+           ondragover="dzOver(event,'dz-alunos')" ondragleave="dzLeave('dz-alunos')" ondrop="dzDrop(event,'alunos')">
+        <div class="dz-ico">📄</div>
+        <div class="dz-title">dados-alunos.csv</div>
+        <div class="dz-sub">Arraste o ficheiro aqui ou clique para selecionar</div>
+        <div class="dz-btn"><button class="btn btn-o btn-sm" onclick="event.stopPropagation();document.getElementById('fi-alunos').click()">📂 Escolher ficheiro</button></div>
+      </div>
+      <input type="file" id="fi-alunos" accept=".csv" onchange="loadCSV(this,'alunos')">
+      <div id="preview-alunos"></div>
+    </div>
+
+    <!-- PIEPE -->
+    <div class="card">
+      <div class="card-title">📝 Ficheiro PIEPE (Exames) <span id="piepe-file-status"></span></div>
+      <div class="al al-info" style="margin-bottom:14px">
+        <span class="al-ico">ℹ️</span>
+        <div>Formato: exportação da plataforma PIEPE (CSV com colunas de exames, finalidades e situação escolar). O sistema deteta automaticamente o formato.</div>
+      </div>
+      <div class="dropzone" id="dz-piepe" onclick="document.getElementById('fi-piepe').click()"
+           ondragover="dzOver(event,'dz-piepe')" ondragleave="dzLeave('dz-piepe')" ondrop="dzDrop(event,'piepe')">
+        <div class="dz-ico">📋</div>
+        <div class="dz-title">dados-piepe.csv</div>
+        <div class="dz-sub">Arraste o ficheiro aqui ou clique para selecionar</div>
+        <div class="dz-btn"><button class="btn btn-o btn-sm" onclick="event.stopPropagation();document.getElementById('fi-piepe').click()">📂 Escolher ficheiro</button></div>
+      </div>
+      <input type="file" id="fi-piepe" accept=".csv" onchange="loadCSV(this,'piepe')">
+      <div id="preview-piepe"></div>
+    </div>
+  </div>
+
+  <!-- Estado da importação -->
+  <div class="card">
+    <div class="card-title">📊 Estado atual dos dados</div>
+    <div id="import-status-detail"></div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-s" onclick="processData()">⚡ Processar e validar dados</button>
+      <button class="btn btn-del" onclick="clearAllData()">🗑️ Limpar todos os dados</button>
+    </div>
+  </div>
+
+  <!-- Template download -->
+  <div class="card">
+    <div class="card-title">📥 Descarregar Templates CSV</div>
+    <div class="al al-warn"><span class="al-ico">⚠️</span><div>Use estes templates como base se ainda não tiver os ficheiros no formato correto.</div></div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-o" onclick="downloadTemplate('alunos')">⬇️ Template dados-alunos.csv</button>
+      <button class="btn btn-o" onclick="downloadTemplate('piepe')">⬇️ Template dados-piepe.csv</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ALUNOS
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-alunos">
+  <div class="search-bar">
+    <input class="si" id="s-alunos" placeholder="🔍  Nome, processo ou curso..." oninput="renderAlunos(this.value)">
+    <select class="fc" style="width:110px" id="f-ano-al" onchange="renderAlunos(document.getElementById('s-alunos').value)">
+      <option value="">Todos os anos</option>
+      <option value="10">10.º</option><option value="11">11.º</option><option value="12">12.º</option>
+    </select>
+    <select class="fc" style="width:140px" id="f-curso-al" onchange="renderAlunos(document.getElementById('s-alunos').value)">
+      <option value="">Todos os cursos</option>
+      <option value="CCH-CT">CCH-CT</option><option value="CCH-LH">CCH-LH</option>
+      <option value="CCH-AV">CCH-AV</option><option value="CCH-CS">CCH-CS</option>
+    </select>
+  </div>
+  <div class="card" style="padding:0" id="alunos-table-card">
+    <div id="alunos-empty" class="no-data"><span class="no-data-ico">👥</span><div class="no-data-title">Sem alunos carregados</div><div class="no-data-sub">Vá a <strong>Importar Dados</strong> e carregue o ficheiro dados-alunos.csv</div></div>
+    <table id="tbl-alunos" style="display:none">
+      <thead><tr><th>Processo</th><th>Nome</th><th>Curso</th><th>Ano</th><th>PIEPE</th><th>ASE</th><th>Ações</th></tr></thead>
+      <tbody id="tb-alunos"></tbody>
+    </table>
+  </div>
+  <div id="alunos-count" style="font-size:11px;color:var(--muted);margin-top:6px;text-align:right"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PERCURSO
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-percurso">
+  <div class="card">
+    <div class="card-title">🔍 Pesquisar Aluno</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Número de Processo</label>
+        <input class="fc" id="p-proc" placeholder="ex: 13593" oninput="loadPercurso()">
+      </div>
+      <div class="fg"><label class="fl">Ou pesquisar por nome</label>
+        <div style="position:relative">
+          <input class="fc" id="p-nome-search" placeholder="Comece a escrever..." oninput="searchNome(this.value)">
+          <div id="p-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #6366f1;border-radius:8px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;margin-top:3px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="perc-body">
+    <div class="no-data"><span class="no-data-ico">📋</span><div class="no-data-title">Pesquise um aluno</div><div class="no-data-sub">Introduza o número de processo ou o nome</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PIEPE
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-piepe">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('piepe','lista')">Lista de Inscrições</div>
+    <div class="tab" onclick="showTab('piepe','stats')">Estatísticas</div>
+    <div class="tab" onclick="showTab('piepe','validar')">Validar Inscrição</div>
+  </div>
+
+  <div class="tc active" id="piepe-lista">
+    <div class="search-bar">
+      <input class="si" id="s-piepe" placeholder="🔍  Nome ou disciplina..." oninput="renderPiepe(this.value)">
+      <select class="fc" style="width:110px" id="f-piepe-ano" onchange="renderPiepe(document.getElementById('s-piepe').value)">
+        <option value="">Todos</option><option value="11">11.º</option><option value="12">12.º</option>
+      </select>
+      <select class="fc" style="width:150px" id="f-piepe-flag" onchange="renderPiepe(document.getElementById('s-piepe').value)">
+        <option value="">Todas as inscrições</option>
+        <option value="alerta">Com alertas</option>
+        <option value="melhoria">Para melhoria</option>
+        <option value="ingresso">Para ingresso ES</option>
+        <option value="ase">Com ASE</option>
+      </select>
+    </div>
+    <div id="piepe-lista-body">
+      <div class="no-data"><span class="no-data-ico">📝</span><div class="no-data-title">Sem inscrições PIEPE</div><div class="no-data-sub">Importe o ficheiro dados-piepe.csv</div></div>
+    </div>
+    <div id="piepe-count" style="font-size:11px;color:var(--muted);margin-top:6px;text-align:right"></div>
+  </div>
+
+  <div class="tc" id="piepe-stats">
+    <div class="g5" id="piepe-sc" style="margin-bottom:16px"></div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Exames mais inscritos</div><div id="piepe-ec"></div></div>
+      <div class="card"><div class="card-title">Distribuição por curso</div><div id="piepe-cc"></div></div>
+    </div>
+  </div>
+
+  <div class="tc" id="piepe-validar">
+    <div class="card">
+      <div class="card-title">✅ Validar Inscrição em Exame</div>
+      <div class="al al-info"><span class="al-ico">⚖️</span><div>Verifica conformidade com o <strong>Regulamento de Provas e Exames 2026</strong> e <strong>Portaria 278/2023</strong>.</div></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Processo do Aluno</label><input class="fc" id="v-proc" placeholder="Número de processo"></div>
+        <div class="fg"><label class="fl">Código do Exame</label>
+          <select class="fc" id="v-cod">
+            <option value="639">639 — Português</option><option value="635">635 — Matemática A</option>
+            <option value="702">702 — Biologia e Geologia</option><option value="715">715 — Física e Química A</option>
+            <option value="719">719 — Matemática B</option><option value="706">706 — Desenho A</option>
+            <option value="714">714 — Inglês</option><option value="835">835 — História A</option>
+            <option value="623">623 — Geografia A</option><option value="712">712 — Economia A</option>
+            <option value="734">734 — Espanhol</option><option value="550">550 — Geometria Descritiva A</option>
+            <option value="724">724 — Educação Física</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Finalidade</label>
+          <select class="fc" id="v-fin"><option value="aprovacao">Aprovação/Conclusão</option><option value="melhoria">Melhoria de nota</option><option value="ingresso">Ingresso no ES</option></select>
+        </div>
+        <div class="fg"><label class="fl">Frequência interna?</label>
+          <select class="fc" id="v-int"><option value="s">Sim — aluno interno</option><option value="n">Não — externo</option></select>
+        </div>
+        <div class="fg"><label class="fl">Ano de frequência</label>
+          <select class="fc" id="v-ano"><option value="12">12.º ano</option><option value="11">11.º ano</option><option value="10">10.º ano</option></select>
+        </div>
+      </div>
+      <button class="btn btn-p" onclick="validarInscricao()">✅ Validar</button>
+    </div>
+    <div class="rp" id="rp-val">
+      <div class="rp-h" id="rph-val"><div class="rp-t" id="rpt-val"></div><span class="badge" id="rpb-val"></span></div>
+      <div class="rp-b" id="rpb2-val"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ALERTAS
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-alertas">
+  <div class="g4" id="al-stats" style="margin-bottom:16px"></div>
+  <div class="card">
+    <div class="card-title">🚨 Alertas Detetados Automaticamente
+      <span style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-o btn-sm" onclick="renderAlertas()" title="Recarregar lista">🔄 Atualizar</button>
+        <button class="btn btn-s btn-sm" onclick="verificarTodosAlertas()">✅ Verificar todos os alertas</button>
+      </span>
+    </div>
+    <div class="al al-info" style="margin-bottom:12px">
+      <span class="al-ico">ℹ️</span>
+      <div>Cada alerta pode ser <strong>eliminado</strong> (registo irrelevante), marcado como <strong>resolvido</strong> (situação tratada) ou classificado como <strong>aluno externo</strong> (candidato sem matrícula interna). Use <em>Verificar todos</em> para ver o resumo final.</div>
+    </div>
+    <div id="lista-alertas">
+      <div class="no-data"><span class="no-data-ico">🔔</span><div class="no-data-title">Sem dados para analisar</div><div class="no-data-sub">Importe os ficheiros CSV para ativar a deteção automática de alertas</div></div>
+    </div>
+  </div>
+  <div class="rp" id="rp-verif-alertas" style="margin-top:0">
+    <div class="rp-h" id="rph-verif-alertas"><div class="rp-t" id="rpt-verif-alertas"></div></div>
+    <div class="rp-b" id="rpb2-verif-alertas"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ASE
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-ase">
+  <div class="card">
+    <div class="card-title">🆘 Alunos com Apoio Social Escolar</div>
+    <div class="al al-info"><span class="al-ico">ℹ️</span><div>Alunos com ASE têm isenção de taxas de inscrição em exames. O escalão determina o nível de apoio.</div></div>
+    <div id="ase-body"><div class="no-data"><span class="no-data-ico">🆘</span><div class="no-data-title">Sem dados ASE</div><div class="no-data-sub">Importe os dados PIEPE para ver alunos com apoio social</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PFP PERMUTAS
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-pfp">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('pfp','validar')">⚖️ Validar Permuta</div>
+    <div class="tab" onclick="showTab('pfp','tabelas')">📋 Tabelas de Permuta</div>
+    <div class="tab" onclick="showTab('pfp','prazos')">📅 Prazos e Procedimentos</div>
+  </div>
+
+  <!-- TAB: VALIDAR -->
+  <div class="tc active" id="pfp-validar">
+    <div class="card">
+      <div class="card-title">🔄 Validação de Permuta de Disciplina — PFP</div>
+      <div class="al al-info"><span class="al-ico">⚖️</span><div>
+        Regulado pelo <strong>Decreto-Lei n.º 55/2018, art.º 16.º</strong> e pela <strong>Portaria 226-A/2018, art.º 16.º</strong>. O aluno pode permutar disciplinas bienais e/ou anuais da componente de formação específica por disciplinas correspondentes de <em>curso diferente do frequentado</em>. Deve manter obrigatoriamente pelo menos <strong>1 disciplina bienal e 1 disciplina anual</strong> da natureza do seu curso.
+      </div></div>
+
+      <div class="fr3">
+        <div class="fg"><label class="fl">Curso do Aluno</label>
+          <select class="fc" id="pfp-ag" onchange="pfpDiscs()">
+            <option value="CT">CCH-CT — Ciências e Tecnologias</option>
+            <option value="LH">CCH-LH — Línguas e Humanidades</option>
+            <option value="CS">CCH-CS — Ciências Socioeconómicas</option>
+            <option value="AV">CCH-AV — Artes Visuais</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Ano / Tipo de disciplina</label>
+          <select class="fc" id="pfp-tipo" onchange="pfpDiscs()">
+            <option value="bienal">Bienal (10.º/11.º ano)</option>
+            <option value="anual">Anual (12.º ano)</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Motivo do Pedido</label>
+          <select class="fc" id="pfp-m">
+            <option value="NEE">NEE — Necessidades Educativas Especiais</option>
+            <option value="orient">Orientação Vocacional</option>
+            <option value="cred">Creditação de Aprendizagens</option>
+            <option value="outro">Outro motivo fundamentado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fr2">
+        <div class="fg">
+          <label class="fl">Disciplina a Permutar <span style="font-weight:400;color:var(--muted)">(saída — do curso do aluno)</span></label>
+          <select class="fc" id="pfp-s" onchange="pfpUpdateEntrada()"></select>
+          <div id="pfp-s-info" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
+        </div>
+        <div class="fg">
+          <label class="fl">Disciplina Substituta <span style="font-weight:400;color:var(--muted)">(entrada — pode ser de outro curso)</span></label>
+          <select class="fc" id="pfp-e"></select>
+          <div id="pfp-e-info" style="font-size:10px;color:#4338ca;margin-top:3px">⚖️ Lista filtrada pelas tabelas do DL 55/2018</div>
+        </div>
+      </div>
+
+      <div class="fr2">
+        <div class="fg"><label class="fl">Documentação de suporte disponível?</label>
+          <select class="fc" id="pfp-doc">
+            <option value="s">Sim — requerimento EE / declaração médica / outro</option>
+            <option value="n">Não — em falta</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">O aluno mantém ≥1 disciplina bienal do seu curso?</label>
+          <select class="fc" id="pfp-mantem">
+            <option value="s">Sim — mantém pelo menos uma bienal do curso</option>
+            <option value="n">Não — fica sem disciplina bienal do curso</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-p" onclick="validarPermuta()">⚖️ Validar Permuta</button>
+    </div>
+
+    <div class="rp" id="rp-pfp">
+      <div class="rp-h" id="rph-pfp"><div class="rp-t" id="rpt-pfp"></div><span class="badge" id="rpb-pfp"></span></div>
+      <div class="rp-b" id="rpb2-pfp"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">🚫 Disciplinas NÃO permutáveis — Componente de Formação Geral</div>
+      <div class="pill-row">
+        <span class="badge b-r">Português</span>
+        <span class="badge b-r">Língua Estrangeira I, II ou III</span>
+        <span class="badge b-r">Filosofia</span>
+        <span class="badge b-r">Educação Física</span>
+      </div>
+      <div class="legal" style="margin-top:10px">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º — Componente de Formação Geral: não admite permutas em qualquer circunstância</div>
+      <div class="al al-warn" style="margin-top:10px">
+        <span class="al-ico">⚠️</span>
+        <div>A disciplina trienal de cada curso (<strong>Matemática A</strong> em CT/CS, <strong>História A</strong> em LH, <strong>Desenho A</strong> em AV) também não é objeto de permuta no âmbito do PFP, sendo de frequência obrigatória.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: TABELAS -->
+  <div class="tc" id="pfp-tabelas">
+    <div class="card">
+      <div class="card-title">📋 Tabelas de Permuta por Curso <span>Fonte: DL 55/2018 + Port. 226-A/2018, Anexos VI e VII</span></div>
+      <div class="tabs" style="margin-bottom:12px">
+        <div class="tab active" onclick="showTabNested('tab-ct','tbl-')" id="tab-ct">Ciências e Tec.</div>
+        <div class="tab" onclick="showTabNested('tab-cs','tbl-')" id="tab-cs">C. Socioeconómicas</div>
+        <div class="tab" onclick="showTabNested('tab-lh','tbl-')" id="tab-lh">Línguas e Hum.</div>
+        <div class="tab" onclick="showTabNested('tab-av','tbl-')" id="tab-av">Artes Visuais</div>
+      </div>
+
+      <!-- CT -->
+      <div id="tbl-ct">
+        <div class="div">Disciplinas Bienais (10.º/11.º ano) — Permuta obrigatoriamente por bienal de outro curso</div>
+        <table><thead><tr><th>Disciplina do curso CT</th><th>Pode ser permutada por (disciplinas bienais de outros cursos)</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Física e Química A</strong></td><td>Economia A · Geografia A · História B · Língua Estrangeira II/III · História da Cultura e das Artes</td><td>—</td></tr>
+          <tr><td><strong>Biologia e Geologia</strong></td><td>Economia A · Geografia A · História B · Língua Estrangeira II/III · História da Cultura e das Artes</td><td>—</td></tr>
+          <tr><td><strong>Geometria Descritiva A</strong></td><td>Economia A · Geografia A · História B · Língua Estrangeira II/III · História da Cultura e das Artes</td><td>—</td></tr>
+        </tbody></table>
+        <div class="div" style="margin-top:14px">Disciplinas Anuais (12.º ano) — Permuta obrigatoriamente por anual de outro curso</div>
+        <table><thead><tr><th>Disciplina do curso CT</th><th>Pode ser permutada por (disciplinas anuais de outros cursos)</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Biologia</strong></td><td rowspan="4">Aplicações Informáticas B · Direito · Economia C · Filosofia A · Geografia C · Língua Estrangeira I,II ou III · Materiais e Tecnologias · Oficina das Artes · Oficina de Multimédia · Psicologia B · Antropologia · Sociologia</td><td rowspan="4">Não pode resultar em disciplinas equivalentes ou com mesmos conteúdos</td></tr>
+          <tr><td><strong>Física</strong></td></tr>
+          <tr><td><strong>Química</strong></td></tr>
+          <tr><td><strong>Geologia</strong></td></tr>
+        </tbody></table>
+        <div class="legal" style="margin-top:8px">Port. 226-A/2018, art.º 16.º · Anexos VI e VII do DL 55/2018</div>
+      </div>
+
+      <!-- CS -->
+      <div id="tbl-cs" style="display:none">
+        <div class="div">Disciplinas Bienais (10.º/11.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso CS</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Economia A</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Língua Estrangeira II/III · História da Cultura e das Artes</td><td>Sem homólogas</td></tr>
+          <tr><td><strong>Geografia A</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Língua Estrangeira II/III · História da Cultura e das Artes</td><td>Sem homólogas</td></tr>
+          <tr><td><strong>História B</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Língua Estrangeira II/III · <em>não pode ser por História da Cultura e das Artes</em></td><td>⚠️ Homólogas proibidas</td></tr>
+        </tbody></table>
+        <div class="div" style="margin-top:14px">Disciplinas Anuais (12.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso CS</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Economia C</strong></td><td rowspan="3">Aplicações Informáticas B · Biologia · Direito · Filosofia A · Física · Geologia · Língua Estrangeira I,II ou III · Materiais e Tecnologias · Oficina de Artes ou Multimédia B · Psicologia B · Química · Antropologia · Sociologia</td><td rowspan="3">Sem homólogas</td></tr>
+          <tr><td><strong>Geografia C</strong></td></tr>
+          <tr><td><strong>Sociologia</strong></td></tr>
+        </tbody></table>
+        <div class="legal" style="margin-top:8px">⚠️ A permuta não pode realizar-se entre disciplinas homólogas (ex: História B ↔ História da Cultura e das Artes). — Port. 226-A/2018, art.º 16.º</div>
+      </div>
+
+      <!-- LH -->
+      <div id="tbl-lh" style="display:none">
+        <div class="div">Disciplinas Bienais (10.º/11.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso LH</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Geografia A</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Economia A · Matemática B</td><td>Sem homólogas</td></tr>
+          <tr><td><strong>Latim A</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Economia A · Matemática B</td><td>—</td></tr>
+          <tr><td><strong>Língua Estrangeira II/III</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Economia A · Matemática B</td><td>—</td></tr>
+          <tr><td><strong>Literatura Portuguesa</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Economia A · Matemática B</td><td>—</td></tr>
+          <tr><td><strong>MACS</strong></td><td>Física e Química A · Biologia e Geologia · Geometria Descritiva A · Economia A · <em>não pode ser por Matemática B</em></td><td>⚠️ MACS ↔ Mat. B proibida</td></tr>
+        </tbody></table>
+        <div class="div" style="margin-top:14px">Disciplinas Anuais (12.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso LH</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Filosofia A</strong></td><td rowspan="5">Antropologia · Aplicações Informáticas · Biologia · Direito · Economia C · Física · Geologia · Materiais e Tecnologias · Oficinas de Artes · Oficina de Multimédia · Química</td><td rowspan="5">Sem equivalentes</td></tr>
+          <tr><td><strong>Geografia C</strong></td></tr>
+          <tr><td><strong>Latim B</strong></td></tr>
+          <tr><td><strong>Literatura de Língua Portuguesa</strong></td></tr>
+          <tr><td><strong>Psicologia B / Sociologia</strong></td></tr>
+        </tbody></table>
+        <div class="legal" style="margin-top:8px">⚠️ MACS ↔ Matemática B: disciplinas homólogas — permuta proibida. — Port. 226-A/2018, art.º 16.º</div>
+      </div>
+
+      <!-- AV -->
+      <div id="tbl-av" style="display:none">
+        <div class="div">Disciplinas Bienais (10.º/11.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso AV</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Geometria Descritiva A</strong></td><td>Física e Química · Biologia e Geologia · Economia A · Geografia A · História B · Língua Estrangeira II/III · MACS</td><td>Sem homólogas</td></tr>
+          <tr><td><strong>Matemática B</strong></td><td>Física e Química · Biologia e Geologia · Economia A · Geografia A · História B · Língua Estrangeira II/III · <em>não pode ser por MACS</em></td><td>⚠️ Mat. B ↔ MACS proibida</td></tr>
+          <tr><td><strong>História da Cultura e das Artes</strong></td><td>Física e Química · Biologia e Geologia · Economia A · Geografia A · <em>não pode ser por História B</em> · Língua Estrangeira II/III · MACS</td><td>⚠️ HCA ↔ Hist. B proibida</td></tr>
+        </tbody></table>
+        <div class="div" style="margin-top:14px">Disciplinas Anuais (12.º ano)</div>
+        <table><thead><tr><th>Disciplina do curso AV</th><th>Pode ser permutada por</th><th>Restrição</th></tr></thead><tbody>
+          <tr><td><strong>Oficina de Artes</strong></td><td rowspan="3">Aplicações Informáticas B · Biologia ou Química · Direito · Economia C · Filosofia A · Física · Geografia C · Geologia · Língua Estrangeira I,II ou III · Psicologia B · Antropologia · Sociologia</td><td rowspan="3">Sem equivalentes</td></tr>
+          <tr><td><strong>Oficina de Multimédia</strong></td></tr>
+          <tr><td><strong>Materiais e Tecnologias</strong></td></tr>
+        </tbody></table>
+        <div class="legal" style="margin-top:8px">⚠️ Matemática B ↔ MACS e História da Cultura e das Artes ↔ História B: disciplinas homólogas — permuta proibida. — Port. 226-A/2018, art.º 16.º</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: PRAZOS -->
+  <div class="tc" id="pfp-prazos">
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--blue)">
+        <div class="card-title">📅 Prazo para Permuta de Disciplina BIENAL (10.º/11.º ano)</div>
+        <div class="al al-info"><span class="al-ico">📋</span><div>
+          <strong>Momento 1:</strong> Na matrícula para frequência do <strong>10.º ano</strong> (para a disciplina bienal)<br>
+          <strong>Momento 2:</strong> Até ao <strong>5.º dia útil do 2.º período</strong> do 10.º ano
+        </div></div>
+        <div class="legal">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º, n.º 3, alínea a)</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple)">
+        <div class="card-title">📅 Prazo para Permuta de Disciplina ANUAL (12.º ano)</div>
+        <div class="al al-info"><span class="al-ico">📋</span><div>
+          <strong>Momento 1:</strong> Na renovação da matrícula para frequência do <strong>12.º ano</strong> (para a disciplina anual)<br>
+          <strong>Momento 2:</strong> Até ao <strong>5.º dia útil do 2.º período</strong> do 12.º ano
+        </div></div>
+        <div class="legal">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º, n.º 3, alínea b)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Procedimentos Obrigatórios — Passo a Passo</div>
+      <div style="font-size:12px;line-height:1.9;color:#334155">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+          <span style="background:var(--navy2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">1</span>
+          <div><strong>Requerimento do Encarregado de Educação</strong> (ou do aluno, se maior de idade), dirigido ao Diretor da escola, com indicação da disciplina a permutar e da disciplina de destino.<div style="font-size:10px;color:var(--muted)">DL 55/2018, art.º 16.º, n.º 2 · Port. 226-A/2018, art.º 16.º, n.º 1</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+          <span style="background:var(--navy2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">2</span>
+          <div><strong>Informação ao EE sobre condições de conclusão e prosseguimento de estudos</strong>, nomeadamente o impacto da permuta nos exames nacionais e no acesso ao ensino superior.<div style="font-size:10px;color:var(--muted)">Port. 226-A/2018, art.º 16.º, n.º 1 — dever de informação prévia obrigatório</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+          <span style="background:var(--navy2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">3</span>
+          <div><strong>Verificação da oferta disponível</strong> — a escola só pode conceder a permuta se a disciplina de destino existir na sua oferta formativa. A alteração está sujeita a existência de vaga e exequibilidade.<div style="font-size:10px;color:var(--muted)">Port. 226-A/2018, art.º 16.º, n.º 5 · Disposição comum — Reforço</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+          <span style="background:var(--navy2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">4</span>
+          <div><strong>Homologação pelo Diretor</strong> e registo no processo individual do aluno. A formalização é feita aquando da matrícula ou renovação.<div style="font-size:10px;color:var(--muted)">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º, n.º 2</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+          <span style="background:var(--navy2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">5</span>
+          <div><strong>Atualização do plano curricular no Gestor de Alunos</strong> — configuração da permuta no plano curricular do curso e na matrícula do aluno. O aluno fica inscrito na turma principal mas pode frequentar a disciplina permutada com outra turma.<div style="font-size:10px;color:var(--muted)">Manual de Procedimentos SGE — EduBox · Art.º 16.º Port. 226-A/2018</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0">
+          <span style="background:var(--gold);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">!</span>
+          <div><strong>Condições do aluno após permuta:</strong> pode não acompanhar a turma de origem; o horário fica condicionado à diversidade da oferta; a alteração posterior está sujeita a existência de vaga.<div style="font-size:10px;color:var(--muted)">Port. 226-A/2018, art.º 16.º, n.º 4 e 5</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚠️ Condições Obrigatórias da Permuta</div>
+      <div class="g2" style="font-size:12px;gap:12px">
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px">
+          <div style="font-weight:700;color:#dc2626;margin-bottom:6px">🚫 NÃO é permitido</div>
+          <div style="line-height:1.8;color:#374151">
+            • Permutar disciplinas da Componente de Formação Geral<br>
+            • Permutar a disciplina trienal (Matemática A / História A / Desenho A)<br>
+            • Ficar sem nenhuma disciplina bienal da natureza do seu curso<br>
+            • Permutar por disciplina equivalente ou com os mesmos conteúdos<br>
+            • Permutar por disciplina homóloga (ex: MACS ↔ Matemática B)
+          </div>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px">
+          <div style="font-weight:700;color:#15803d;margin-bottom:6px">✅ É permitido</div>
+          <div style="line-height:1.8;color:#374151">
+            • Permutar 1 disciplina bienal e/ou 1 disciplina anual da formação específica<br>
+            • Permutar por disciplina de outro curso (conforme tabelas)<br>
+            • Reforço: se a disciplina de destino tiver carga horária superior, a escola pode oferecer a permuta independentemente do número de alunos<br>
+            • Cancelar a permuta em caso de engano, sujeito a disponibilidade
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SUBSTITUIÇÕES
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-substituicoes">
+  <div class="card">
+    <div class="card-title">↔️ Validação de Substituição de Disciplinas</div>
+    <div class="al al-warn"><span class="al-ico">⚠️</span><div>Substituição = alteração permanente do plano de estudos. Requer homologação do diretor. Diferente da permuta (carácter permanente). — <strong>Port. 278/2023, art.º 8.º</strong></div></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Tipo de Substituição</label>
+        <select class="fc" id="sub-t">
+          <option value="opt">Opcional → Outra Opcional</option>
+          <option value="espec">Específica → Equivalente aprovada</option>
+          <option value="bienal">Bienal → Anual equivalente</option>
+          <option value="cfg">Formação Geral (muito condicionada)</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Motivo</label>
+        <select class="fc" id="sub-m">
+          <option value="NEE">NEE — Necessidades Educativas Especiais</option>
+          <option value="pfp">PFP homologado</option>
+          <option value="orient">Orientação vocacional</option>
+          <option value="pessoal">Pessoal / Familiar fundamentado</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Disciplina Original</label><input class="fc" id="sub-o" placeholder="Nome da disciplina"></div>
+      <div class="fg"><label class="fl">Disciplina Substituta</label><input class="fc" id="sub-n" placeholder="Nome da disciplina"></div>
+    </div>
+    <div class="fg"><label class="fl">Justificação Pedagógica</label>
+      <textarea class="fc" id="sub-j" rows="3" placeholder="Justificação pedagógica ou clínica detalhada (mínimo 30 palavras)..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn btn-p" onclick="validarSub()">↔️ Validar Substituição</button>
+      <button class="btn btn-o" onclick="limparSub()">✕ Limpar</button>
+    </div>
+  </div>
+  <div class="rp" id="rp-sub">
+    <div class="rp-h" id="rph-sub"><div class="rp-t" id="rpt-sub"></div></div>
+    <div class="rp-b" id="rpb2-sub"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONCLUSÃO
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-conclusao">
+  <div class="card">
+    <div class="card-title">🎓 Verificação de Conclusão do Ensino Secundário</div>
+    <div class="al al-info"><span class="al-ico">⚖️</span><div>Requer aprovação em todas as disciplinas (≥10) e CFES ≥ 10. — <strong>Port. 266-A/2018, art.º 12.º · Port. 278/2023</strong></div></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Agrupamento</label>
+        <select class="fc" id="c-ag">
+          <option value="CT">CCH-CT — Ciências e Tecnologias</option>
+          <option value="LH">CCH-LH — Línguas e Humanidades</option>
+          <option value="CS">CCH-CS — Ciências Socioeconómicas</option>
+          <option value="AV">CCH-AV — Artes Visuais</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">PFP homologado?</label>
+        <select class="fc" id="c-pfp"><option value="n">Não</option><option value="s">Sim</option></select>
+      </div>
+    </div>
+    <div class="div">Classificações internas (0 = não avaliado)</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">Português (CFG)</label><input class="fc" id="cn1" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Filosofia (CFG)</label><input class="fc" id="cn2" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Ed. Física (CFG)</label><input class="fc" id="cn3" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Específica 1 (CFC)</label><input class="fc" id="cn4" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Específica 2 (CFC)</label><input class="fc" id="cn5" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Específica 3 (CFC)</label><input class="fc" id="cn6" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Opção 1 (CFA)</label><input class="fc" id="cn7" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">Opção 2 (CFA)</label><input class="fc" id="cn8" type="number" min="0" max="20" value="0"></div>
+      <div class="fg"><label class="fl">EMRC / Of. Escola</label><input class="fc" id="cn9" type="number" min="0" max="20" value="0"></div>
+    </div>
+    <button class="btn btn-s" onclick="verificarConc()">🎓 Verificar Conclusão</button>
+  </div>
+  <div class="rp" id="rp-conc">
+    <div class="rp-h" id="rph-conc"><div class="rp-t" id="rpt-conc"></div></div>
+    <div class="rp-b" id="rpb2-conc"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SIMULADOR CFES
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-simulador">
+  <div class="card">
+    <div class="card-title">⚡ Simulador de CFES</div>
+    <div class="al al-info"><span class="al-ico">ℹ️</span><div><strong>Fórmula:</strong> CFES = 0,7 × CI + 0,3 × CE (com exame) | CFES mínima para conclusão: 10 valores — <strong>Port. 266-A/2018, art.º 12.º</strong></div></div>
+    <div class="g2">
+      <div>
+        <div class="div">Classificações</div>
+        <div class="fg"><label class="fl">Média interna (CI)</label><input class="fc" id="si-ci" type="number" step=".1" min="1" max="20" value="13.5"></div>
+        <div class="fg"><label class="fl">Nota Exame 1 (0–20 ou 0–200)</label><input class="fc" id="si-e1" type="number" min="0" max="200" value="0"></div>
+        <div class="fg"><label class="fl">Nota Exame 2 (se aplicável)</label><input class="fc" id="si-e2" type="number" min="0" max="200" value="0"></div>
+      </div>
+      <div>
+        <div class="div">Parâmetros</div>
+        <div class="fg"><label class="fl">Número de exames nacionais</label>
+          <select class="fc" id="si-ne"><option value="0">Sem exame</option><option value="1" selected>1 exame</option><option value="2">2 exames</option></select>
+        </div>
+        <div class="fg"><label class="fl">Existe reprovação (nota &lt;10)?</label>
+          <select class="fc" id="si-repr"><option value="n">Não — todas aprovadas</option><option value="s">Sim</option></select>
+        </div>
+        <div class="fg"><label class="fl">PFP em vigor?</label>
+          <select class="fc" id="si-pfp"><option value="n">Não</option><option value="s">Sim</option></select>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-s" onclick="calcCFES()">⚡ Calcular CFES</button>
+  </div>
+  <div class="rp" id="rp-sim">
+    <div class="rp-h" id="rph-sim"><div class="rp-t" id="rpt-sim"></div></div>
+    <div class="rp-b" id="rpb2-sim"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     LEGISLAÇÃO (CRUD)
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-legislacao">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:18px;font-weight:800;color:var(--navy2)">Base Legislativa</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">Adicione, edite e remova normas, artigos e referências legais</div>
+    </div>
+    <button class="btn btn-p" onclick="openModalLeg()">➕ Nova norma</button>
+  </div>
+
+  <div class="search-bar">
+    <input class="si" id="s-leg" placeholder="🔍  Tema, referência ou texto..." oninput="renderLeg(this.value)">
+    <select class="fc" style="width:160px" id="f-leg-fonte" onchange="renderLeg(document.getElementById('s-leg').value)">
+      <option value="">Todas as fontes</option>
+      <option value="Portaria 278/2023">Port. 278/2023</option>
+      <option value="Portaria 266-A/2018">Port. 266-A/2018</option>
+      <option value="Regulamento Provas 2026">Reg. Provas 2026</option>
+      <option value="FAQ PFP 2024">FAQ PFP 2024</option>
+      <option value="FAQ PFP 2022">FAQ PFP 2022</option>
+      <option value="Outro">Outro</option>
+    </select>
+  </div>
+
+  <div id="leg-list"></div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">📅 Calendário de Exames 2026</div>
+    <table>
+      <thead><tr><th>Código</th><th>Disciplina</th><th>Agrupamento</th><th>1.ª Fase</th><th>2.ª Fase</th></tr></thead>
+      <tbody>
+        <tr><td><code>639</code></td><td>Português</td><td>Todos</td><td>11 Jun</td><td>9 Jul</td></tr>
+        <tr><td><code>635</code></td><td>Matemática A</td><td>CT/CS</td><td>13 Jun</td><td>11 Jul</td></tr>
+        <tr><td><code>702</code></td><td>Biologia e Geologia</td><td>CT</td><td>17 Jun</td><td>15 Jul</td></tr>
+        <tr><td><code>715</code></td><td>Física e Química A</td><td>CT</td><td>16 Jun</td><td>14 Jul</td></tr>
+        <tr><td><code>719</code></td><td>Matemática B</td><td>LH/AV</td><td>13 Jun</td><td>11 Jul</td></tr>
+        <tr><td><code>835</code></td><td>História A</td><td>LH</td><td>18 Jun</td><td>16 Jul</td></tr>
+        <tr><td><code>623</code></td><td>Geografia A</td><td>LH/CS</td><td>19 Jun</td><td>17 Jul</td></tr>
+        <tr><td><code>706</code></td><td>Desenho A</td><td>AV</td><td>20 Jun</td><td>18 Jul</td></tr>
+        <tr><td><code>714</code></td><td>Inglês</td><td>Todos</td><td>14 Jun</td><td>12 Jul</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONFIGURAÇÕES
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-config">
+  <div class="card">
+    <div class="config-section">
+      <div class="config-title">Identificação da Escola</div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Nome do Agrupamento</label><input class="fc" id="cfg-escola" placeholder="ex: Agrupamento de Escolas de Almodovar"></div>
+        <div class="fg"><label class="fl">Código da Escola (DGES)</label><input class="fc" id="cfg-codigo" placeholder="ex: 202249"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Ano Letivo</label><input class="fc" id="cfg-anoletivo" placeholder="ex: 2025/2026"></div>
+        <div class="fg"><label class="fl">Diretor(a)</label><input class="fc" id="cfg-diretor" placeholder="Nome do/a diretor/a"></div>
+      </div>
+    </div>
+    <div class="config-section">
+      <div class="config-title">Formatação dos Dados</div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Separador do CSV de alunos</label>
+          <select class="fc" id="cfg-sep"><option value=";">Ponto e vírgula (;)</option><option value=",">Vírgula (,)</option><option value="\t">Tabulação (tab)</option></select>
+        </div>
+        <div class="fg"><label class="fl">Codificação do ficheiro</label>
+          <select class="fc" id="cfg-enc"><option value="latin1">Latin-1 / ISO-8859-1</option><option value="utf8">UTF-8</option></select>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-s" onclick="saveConfig()">💾 Guardar configurações</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--red)">⚠️ Zona de Perigo</div>
+    <div class="al al-err"><span class="al-ico">🚨</span><div>As ações abaixo são irreversíveis. Os dados eliminados não podem ser recuperados.</div></div>
+    <div class="btn-row">
+      <button class="btn btn-del" onclick="clearData('alunos')">🗑️ Eliminar dados de alunos</button>
+      <button class="btn btn-del" onclick="clearData('piepe')">🗑️ Eliminar dados PIEPE</button>
+      <button class="btn btn-del" onclick="clearData('legislacao')">🗑️ Eliminar legislação</button>
+      <button class="btn btn-del" onclick="clearAllData()">🗑️ Eliminar TUDO</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL LEGISLAÇÃO -->
+<div class="modal-bg" id="modal-leg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-leg')">✕</button>
+    <div class="modal-title" id="modal-leg-title">Nova Norma Legislativa</div>
+    <input type="hidden" id="leg-edit-id">
+    <div class="fg"><label class="fl">Referência Legal *</label><input class="fc" id="leg-ref" placeholder="ex: Port. 278/2023, art.º 4.º"></div>
+    <div class="fg"><label class="fl">Tema / Título *</label><input class="fc" id="leg-tema" placeholder="ex: Permutas no PFP"></div>
+    <div class="fg"><label class="fl">Texto da Norma *</label><textarea class="fc" id="leg-texto" rows="4" placeholder="Transcrição ou resumo da norma..."></textarea></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Fonte / Documento</label>
+        <select class="fc" id="leg-fonte">
+          <option value="Portaria 278/2023">Portaria 278/2023</option>
+          <option value="Portaria 266-A/2018">Portaria 266-A/2018</option>
+          <option value="Regulamento Provas 2026">Regulamento Provas 2026</option>
+          <option value="FAQ PFP 2024">FAQ PFP 2024</option>
+          <option value="FAQ PFP 2022">FAQ PFP 2022</option>
+          <option value="Conclusão Ensino Secundário DGE">Conclusão Ensino Secundário DGE</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Data de entrada em vigor</label><input class="fc" id="leg-data" type="date"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="saveLeg()">💾 Guardar norma</button>
+      <button class="btn btn-o" onclick="closeModal('modal-leg')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE — localStorage persistence
+// ══════════════════════════════════════════════════════
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem('edulex_'+k)||'null') } catch{return null} },
+  set: (k,v) => localStorage.setItem('edulex_'+k, JSON.stringify(v)),
+  del: k => localStorage.removeItem('edulex_'+k)
+};
+
+let DB = {
+  alunos: LS.get('alunos')||[],
+  piepe:  LS.get('piepe')||[],
+  leg:    LS.get('leg')||defaultLeg(),
+  config: LS.get('config')||{escola:'',codigo:'',anoletivo:'',diretor:'',sep:';',enc:'latin1'}
+};
+
+function save() {
+  LS.set('alunos', DB.alunos);
+  LS.set('piepe', DB.piepe);
+  LS.set('leg', DB.leg);
+  LS.set('config', DB.config);
+  updateBadges();
+}
+
+function defaultLeg() {
+  return [
+    {id:1,ref:'Port. 278/2023, art.º 2.º',tema:'Definição de PFP',texto:'O percurso formativo próprio é um percurso de natureza excecional, aplicável a alunos com necessidades educativas específicas ou em situação de vulnerabilidade educativa prolongada.',fonte:'Portaria 278/2023',data:'2023-07-01'},
+    {id:2,ref:'Port. 278/2023, art.º 4.º',tema:'Permutas no PFP',texto:'As permutas de disciplinas devem ser fundamentadas e homologadas pelo diretor, ouvidos o diretor de turma e o encarregado de educação. Não abrangem disciplinas obrigatórias da formação geral.',fonte:'Portaria 278/2023',data:'2023-07-01'},
+    {id:3,ref:'Port. 278/2023, art.º 6.º',tema:'Homologação do PFP',texto:'O PFP é homologado pelo diretor após audição do conselho de turma e do EE. Deve ser registado no processo individual do aluno e comunicado à DGE.',fonte:'Portaria 278/2023',data:'2023-07-01'},
+    {id:4,ref:'Port. 278/2023, art.º 8.º',tema:'Substituições de disciplinas',texto:'A substituição implica a alteração permanente do plano de estudos individual. Requer fundamentação e homologação do diretor. Difere da permuta pelo carácter permanente.',fonte:'Portaria 278/2023',data:'2023-07-01'},
+    {id:5,ref:'Port. 266-A/2018, Anexo I',tema:'Planos de estudo CCH',texto:'Define as matrizes curriculares dos cursos científico-humanísticos: CFG, CFC e CFA, bem como cargas horárias e disciplinas obrigatórias.',fonte:'Portaria 266-A/2018',data:'2018-09-01'},
+    {id:6,ref:'Port. 266-A/2018, art.º 12.º',tema:'Conclusão do ensino secundário',texto:'A conclusão requer aprovação em todas as disciplinas e CFES ≥ 10 valores. Os exames nacionais obrigatórios integram o cálculo da classificação final.',fonte:'Portaria 266-A/2018',data:'2018-09-01'},
+    {id:7,ref:'Reg. Provas 2026, art.º 3.º',tema:'Elegibilidade para exames',texto:'Podem realizar exames os alunos que frequentam ou frequentaram a disciplina no ensino secundário e os candidatos externos devidamente registados no IAVE.',fonte:'Regulamento Provas 2026',data:'2025-09-01'},
+    {id:8,ref:'Reg. Provas 2026, art.º 6.º',tema:'Frequência obrigatória',texto:'Alunos internos não podem inscrever-se em exame de disciplina que não frequentaram, exceto por creditação devidamente homologada.',fonte:'Regulamento Provas 2026',data:'2025-09-01'},
+    {id:9,ref:'Reg. Provas 2026, art.º 7.º',tema:'Inscrição em exames',texto:'A inscrição deve ser efetuada nos prazos do calendário escolar. É da responsabilidade dos estabelecimentos de ensino para alunos internos.',fonte:'Regulamento Provas 2026',data:'2025-09-01'},
+    {id:10,ref:'Reg. Provas 2026, art.º 14.º',tema:'Melhoria de classificação',texto:'Só pode inscrever-se para melhoria quem obteve classificação ≥ 10 valores na mesma disciplina em época anterior.',fonte:'Regulamento Provas 2026',data:'2025-09-01'},
+    {id:11,ref:'FAQ PFP 2024, Q.8',tema:'PFP e exames nacionais',texto:'Os alunos com PFP mantêm a obrigatoriedade de realizar os exames nacionais das disciplinas sujeitas a prova externa, salvo exceções expressamente previstas no percurso homologado.',fonte:'FAQ PFP 2024',data:'2024-01-01'},
+    {id:12,ref:'FAQ PFP 2022, Q.3',tema:'Acesso ao PFP',texto:'O PFP pode ser requerido pelo EE a qualquer momento do ano letivo, com fundamentação e documentação de suporte, sendo apreciado pelo conselho de turma.',fonte:'FAQ PFP 2022',data:'2022-01-01'}
+  ];
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+const PT = {dashboard:'Dashboard',importar:'Importar Dados',alunos:'Alunos',percurso:'Percurso do Aluno',piepe:'Inscrições PIEPE',alertas:'Alertas Legais',ase:'Apoio Social (ASE)',pfp:'Permutas PFP',substituicoes:'Substituições',conclusao:'Conclusão do Secundário',simulador:'Simulador CFES',legislacao:'Base Legislativa',config:'Configurações'};
+
+function nav(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const ni = document.querySelector(`.nav-i[onclick="nav('${id}')"]`);
+  if(ni) ni.classList.add('active');
+  document.getElementById('ttitle').textContent = PT[id]||id;
+  if(id==='alunos') renderAlunos('');
+  if(id==='piepe') { renderPiepe(''); renderPiepeStats(); }
+  if(id==='alertas') renderAlertas();
+  if(id==='ase') renderASE();
+  if(id==='legislacao') renderLeg('');
+  if(id==='config') loadConfig();
+  if(id==='dashboard') initDashboard();
+  if(id==='importar') renderImportStatus();
+  if(id==='pfp') pfpDiscs();
+}
+
+function showTab(page, tab) {
+  const pg = document.getElementById('page-'+page);
+  pg.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  pg.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));
+  document.getElementById(page+'-'+tab).classList.add('active');
+  event.target.classList.add('active');
+  if(page==='piepe'&&tab==='stats') renderPiepeStats();
+}
+
+function updateBadges() {
+  document.getElementById('nb-alunos').textContent = DB.alunos.length;
+  document.getElementById('nb-piepe').textContent = DB.piepe.length;
+  document.getElementById('nb-leg').textContent = DB.leg.length;
+  const al = DB.piepe.filter(p=>p.tem_alertas).length;
+  document.getElementById('nb-alertas').textContent = al;
+  document.getElementById('nb-alertas').style.background = al>0 ? 'var(--accent)' : 'var(--green)';
+  document.getElementById('tag-leg').textContent = `⚖️ ${DB.leg.length} normas`;
+  const cfg = DB.config;
+  document.getElementById('tag-ano').textContent = cfg.anoletivo||'Ano letivo não definido';
+  document.getElementById('sb-escola-label').textContent = cfg.escola ? `🏫 ${cfg.escola}` : '⚙️ Configurar escola...';
+}
+
+// ══════════════════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════════════════
+function dzOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dzLeave(id) { document.getElementById(id).classList.remove('dragover'); }
+function dzDrop(e, type) {
+  e.preventDefault();
+  dzLeave('dz-'+type);
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+  parseCSVFile(file, type);
+}
+function loadCSV(input, type) {
+  const file = input.files[0];
+  if(!file) return;
+  parseCSVFile(file, type);
+}
+
+// ══════════════════════════════════════════════════════
+// CSV PARSING
+// ══════════════════════════════════════════════════════
+function parseCSVFile(file, type) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    if(type==='alunos') parseAlunos(text, file.name);
+    else parsePiepe(text, file.name);
+  };
+  reader.readAsText(file, 'latin1');
+}
+
+function parseAlunos(text, fname) {
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) { toast('Ficheiro vazio ou sem dados','err'); return; }
+  const sep = DB.config.sep || ';';
+  const headers = lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/"/g,''));
+  const iProc = headers.findIndex(h=>h.includes('processo')||h.includes('nprocesso')||h===('processo'));
+  const iNome = headers.findIndex(h=>h.includes('nome'));
+  const iCurso = headers.findIndex(h=>h.includes('curso'));
+  const iAno = headers.findIndex(h=>h.includes('ano'));
+  const iRegime = headers.findIndex(h=>h.includes('regime'));
+
+  // fallback: positional
+  const alunos = [];
+  for(let i=1;i<lines.length;i++) {
+    const cols = lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,''));
+    if(cols.length<2) continue;
+    alunos.push({
+      processo: cols[iProc>=0?iProc:0]||'',
+      nome: cols[iNome>=0?iNome:1]||'',
+      curso: cols[iCurso>=0?iCurso:2]||'',
+      ano: cols[iAno>=0?iAno:3]||'',
+      regime: cols[iRegime>=0?iRegime:4]||''
+    });
+  }
+  DB.alunos = alunos.filter(a=>a.nome);
+  save();
+  toast(`✅ ${DB.alunos.length} alunos importados de ${fname}`,'ok');
+  document.getElementById('alunos-file-status').innerHTML = `<span class="badge b-g">✓ ${DB.alunos.length} registos</span>`;
+  renderImportStatus();
+  initDashboard();
+  document.getElementById('dz-alunos').style.borderColor='var(--green)';
+  document.getElementById('dz-alunos').innerHTML=`<div class="dz-ico">✅</div><div class="dz-title">${fname}</div><div class="dz-sub">${DB.alunos.length} alunos importados</div><div class="dz-btn"><button class="btn btn-o btn-sm" onclick="event.stopPropagation();document.getElementById('fi-alunos').click()">🔄 Substituir</button></div>`;
+}
+
+function parsePiepe(text, fname) {
+  // Handle the double-quoted PIEPE format
+  const lines = text.trim().split('\n');
+  const records = [];
+  for(const line of lines) {
+    let l = line.trim();
+    if(l.startsWith('"') && l.endsWith('"')) l = l.slice(1,-1);
+    l = l.replace(/""/g,'"');
+    const cols = [];
+    let cur='',inQ=false;
+    for(let i=0;i<l.length;i++) {
+      if(l[i]==='"') { inQ=!inQ; }
+      else if(l[i]===','&&!inQ) { cols.push(cur.trim()); cur=''; }
+      else cur+=l[i];
+    }
+    cols.push(cur.trim());
+    records.push(cols);
+  }
+  if(records.length<2) { toast('Ficheiro PIEPE sem dados','err'); return; }
+
+  const ECODES = {'550':'Geometria Descritiva A','623':'Geografia A','624':'Hist. Cultura Artes','635':'Matemática A','639':'Português','702':'Biologia e Geologia','706':'Desenho A','708':'Língua Gestual','712':'Economia A','714':'Inglês','715':'Física e Química A','719':'Matemática B','724':'Educação Física','734':'Espanhol','735':'Francês','835':'História A'};
+  const CMAP = {'F60':'CCH-CS','F61':'CCH-CT','F62':'CCH-LH','F64':'CCH-AV','R44':'Prof.','C62':'CEF'};
+  const g = (r,i)=>i<r.length?r[i].trim():'';
+
+  const piepe = [];
+  for(let ri=1;ri<records.length;ri++) {
+    const r = records[ri];
+    if(r.length<22) continue;
+    const exames=[];
+    for(let s=0;s<9;s++) {
+      const cod=g(r,22+s);
+      if(cod&&!['s','n',''].includes(cod)) {
+        exames.push({codigo:cod,disciplina:ECODES[cod]||`Cód.${cod}`,ano:g(r,49+s),interno:g(r,58+s)==='s',aprovacao:g(r,67+s)==='s',melhoria:g(r,76+s)==='s',prosseguimento:g(r,85+s)==='s',provaingresso:g(r,94+s)==='s'});
+      }
+    }
+    const anoR=g(r,106).replace(/[º°.\u00ba\u2070]/g,'').trim();
+    const aluno={id:g(r,0),nome:g(r,7).trim(),nprocesso:g(r,8).trim(),curso:CMAP[g(r,20)]||g(r,20),ingressoes:g(r,21)==='s',ase:g(r,103)==='s',escalaoase:g(r,104),ano:anoR,turma:g(r,107),fichaenes:g(r,112)==='s',datainscricao:g(r,114).slice(0,10),exames,alertas:[],tem_alertas:false};
+    // Cross-reference with alunos
+    const match = DB.alunos.find(a=>normalize(a.nome)===normalize(aluno.nome));
+    aluno.processo = match ? match.processo : aluno.nprocesso;
+    // Validate
+    if(aluno.ingressoes && !exames.some(e=>e.codigo==='639')) {
+      aluno.alertas.push({tipo:'error',msg:'Candidato com ingresso no ES não tem Português inscrito.',lei:'Port. 278/2023 + Reg. Provas 2026, art.º 3.º'});
+    }
+    if(aluno.ano==='11') {
+      exames.forEach(e=>{ if(e.ano==='12') aluno.alertas.push({tipo:'warning',msg:`Inscrito em exame do 12.º (${e.disciplina}) estando no 11.º ano.`,lei:'Reg. Provas 2026, art.º 6.º'}); });
+    }
+    aluno.tem_alertas = aluno.alertas.length>0;
+    piepe.push(aluno);
+  }
+  DB.piepe = piepe;
+  save();
+  toast(`✅ ${DB.piepe.length} inscrições PIEPE importadas`,'ok');
+  document.getElementById('piepe-file-status').innerHTML = `<span class="badge b-g">✓ ${DB.piepe.length} registos</span>`;
+  renderImportStatus();
+  initDashboard();
+  document.getElementById('dz-piepe').style.borderColor='var(--green)';
+  document.getElementById('dz-piepe').innerHTML=`<div class="dz-ico">✅</div><div class="dz-title">${fname}</div><div class="dz-sub">${DB.piepe.length} inscrições importadas</div><div class="dz-btn"><button class="btn btn-o btn-sm" onclick="event.stopPropagation();document.getElementById('fi-piepe').click()">🔄 Substituir</button></div>`;
+}
+
+function normalize(n) {
+  return (n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+}
+
+function processData() {
+  if(!DB.alunos.length && !DB.piepe.length) { toast('Nenhum dado para processar','err'); return; }
+  // Re-run cross-reference and validations
+  DB.piepe.forEach(p=>{
+    const match = DB.alunos.find(a=>normalize(a.nome)===normalize(p.nome));
+    p.processo = match ? match.processo : (p.nprocesso||'');
+    p.alertas = [];
+    if(p.ingressoes && !p.exames.some(e=>e.codigo==='639')) {
+      p.alertas.push({tipo:'error',msg:'Candidato com ingresso no ES não tem Português inscrito.',lei:'Port. 278/2023 + Reg. Provas 2026'});
+    }
+    if(p.ano==='11') {
+      p.exames.forEach(e=>{ if(e.ano==='12') p.alertas.push({tipo:'warning',msg:`Inscrito em exame do 12.º (${e.disciplina}) estando no 11.º ano.`,lei:'Reg. Provas 2026, art.º 6.º'}); });
+    }
+    p.tem_alertas = p.alertas.length>0;
+  });
+  save();
+  toast(`Dados processados: ${DB.piepe.filter(p=>p.tem_alertas).length} alertas detetados`,'ok');
+  renderImportStatus();
+  initDashboard();
+}
+
+// ══════════════════════════════════════════════════════
+// IMPORT STATUS
+// ══════════════════════════════════════════════════════
+function renderImportStatus() {
+  const div = document.getElementById('import-status-detail');
+  const al = DB.alertas ? DB.alunos.length : DB.alunos.length;
+  const alertas = DB.piepe.filter(p=>p.tem_alertas).length;
+  div.innerHTML = `
+    <div class="import-file">
+      <div class="import-file-name">${DB.alunos.length>0?'✅':'⬜'} dados-alunos.csv</div>
+      <div class="import-file-info"><span class="badge ${DB.alunos.length>0?'b-g':'b-gray'}">${DB.alunos.length} alunos</span></div>
+    </div>
+    <div class="import-file">
+      <div class="import-file-name">${DB.piepe.length>0?'✅':'⬜'} dados-piepe.csv</div>
+      <div class="import-file-info"><span class="badge ${DB.piepe.length>0?'b-g':'b-gray'}">${DB.piepe.length} inscrições</span> ${alertas>0?`<span class="badge b-r" style="margin-left:4px">⚠️ ${alertas} alertas</span>`:''}</div>
+    </div>
+    <div class="import-file">
+      <div class="import-file-name">⚖️ Base legislativa</div>
+      <div class="import-file-info"><span class="badge b-p">${DB.leg.length} normas</span></div>
+    </div>`;
+}
+
+function downloadTemplate(type) {
+  let csv, fname;
+  if(type==='alunos') {
+    csv = 'Processo;Nome;Curso;Ano;Regime\n13001;Maria Silva;CCH-CT;12;Ordinário\n13002;João Santos;CCH-LH;11;Ordinário\n';
+    fname = 'template-dados-alunos.csv';
+  } else {
+    csv = 'Id,Fase,Tipo,Id Candidato,Tipoidentificacao,Docidentificacao,Bidatavalidade,Nome,Nprocesso,...\n';
+    fname = 'template-dados-piepe.csv';
+  }
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = fname;
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+function initDashboard() {
+  const a = DB.alunos, p = DB.piepe;
+  const alertC = p.filter(x=>x.tem_alertas).length;
+  const aseC = p.filter(x=>x.ase).length;
+  const ingrC = p.filter(x=>x.ingressoes).length;
+  document.getElementById('dash-stats').innerHTML = [
+    {l:'Alunos',v:a.length,s:'Matrículas'},
+    {l:'Inscrições PIEPE',v:p.length,s:'Exames 2026'},
+    {l:'Ingresso ES',v:ingrC,s:'Candidatos'},
+    {l:'Com ASE',v:aseC,s:'Apoio social'},
+    {l:'Alertas',v:alertC,s:'Verificar',w:alertC>0}
+  ].map(s=>`<div class="stat"><div class="stat-l">${s.l}</div><div class="stat-v" style="${s.w?'color:var(--accent)':''}">${s.v}</div><div class="stat-s">${s.s}</div></div>`).join('');
+
+  // Aviso de setup
+  if(!a.length && !p.length) {
+    document.getElementById('dash-aviso').innerHTML = `<div class="al al-warn" style="margin-bottom:16px"><span class="al-ico">👋</span><div><strong>Bem-vindo ao EduLex!</strong> Comece por importar os seus dados em <strong>Importar Dados</strong>. A base legislativa já está pré-carregada com as normas essenciais — pode editá-la em <strong>Legislação</strong>.</div></div>`;
+  } else {
+    document.getElementById('dash-aviso').innerHTML = '';
+  }
+
+  // Distribution
+  if(a.length) {
+    const dist = {};
+    a.forEach(x=>{ const k=x.curso+' '+x.ano+'º'; dist[k]=(dist[k]||0)+1; });
+    const sorted = Object.entries(dist).sort((a,b)=>b[1]-a[1]);
+    const max = sorted[0]?.[1]||1;
+    const cc = {'CCH-CT':'#0f3460','CCH-LH':'#4f46e5','CCH-AV':'#e94560','CCH-CS':'#f5a623'};
+    document.getElementById('dash-dist').innerHTML = sorted.map(([k,n])=>{
+      const c = cc[k.split(' ')[0]]||'#888';
+      return `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span><strong>${k}</strong></span><span style="font-weight:700">${n}</span></div><div class="pb"><div class="pf" style="width:${Math.round(n/max*100)}%;background:${c}"></div></div></div>`;
+    }).join('');
+  }
+
+  // Alertas
+  const als = p.filter(x=>x.tem_alertas);
+  document.getElementById('dash-alertas').innerHTML = als.length===0
+    ? (p.length?'<div class="al al-ok"><span class="al-ico">✅</span><div>Nenhum alerta crítico detetado nas inscrições.</div></div>':'<div class="no-data"><span class="no-data-ico">📂</span><div class="no-data-title">Sem dados PIEPE</div><div class="no-data-sub">Importe o ficheiro dados-piepe.csv</div></div>')
+    : als.map(s=>`<div class="al al-err"><span class="al-ico">🚨</span><div><strong>${s.nome}</strong><br>${s.alertas.map(a=>a.msg).join('<br>')}<div style="font-size:10px;margin-top:3px;font-family:monospace">${s.alertas.map(a=>a.lei).join(' · ')}</div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// ALUNOS
+// ══════════════════════════════════════════════════════
+const piepeIdx = ()=>{ const m={}; DB.piepe.forEach(p=>{ if(p.processo) m[p.processo]=p; }); return m; };
+
+function renderAlunos(q) {
+  const fAno = document.getElementById('f-ano-al').value;
+  const fCurso = document.getElementById('f-curso-al').value;
+  const ql = q.toLowerCase();
+  const filtered = DB.alunos.filter(a=>{
+    if(fAno && a.ano!==fAno) return false;
+    if(fCurso && a.curso!==fCurso) return false;
+    if(ql && !a.nome.toLowerCase().includes(ql) && !a.processo.includes(ql) && !a.curso.toLowerCase().includes(ql)) return false;
+    return true;
+  });
+  const idx = piepeIdx();
+  const tbl = document.getElementById('tbl-alunos');
+  const empty = document.getElementById('alunos-empty');
+  if(!DB.alunos.length) { tbl.style.display='none'; empty.style.display='block'; document.getElementById('alunos-count').textContent=''; return; }
+  tbl.style.display='table'; empty.style.display='none';
+  document.getElementById('tb-alunos').innerHTML = filtered.map(a=>{
+    const pp = idx[a.processo];
+    return `<tr>
+      <td><code>${a.processo}</code></td>
+      <td style="font-weight:600">${a.nome}</td>
+      <td><span class="badge b-b">${a.curso}</span></td>
+      <td>${a.ano}.º</td>
+      <td>${pp?'<span class="badge b-g">✓ PIEPE</span>':'<span class="badge b-gray">—</span>'}</td>
+      <td>${pp&&pp.ase?`<span class="badge b-o">ASE ${pp.escalaoase}</span>`:'—'}</td>
+      <td><button class="btn btn-o btn-xs" onclick="verPercurso('${a.processo}')">Ver</button>${pp&&pp.tem_alertas?'<span class="badge b-r" style="margin-left:5px">⚠️</span>':''}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('alunos-count').textContent = `${filtered.length} de ${DB.alunos.length} alunos`;
+}
+
+// ══════════════════════════════════════════════════════
+// PERCURSO
+// ══════════════════════════════════════════════════════
+function verPercurso(proc) {
+  nav('percurso');
+  document.getElementById('p-proc').value = proc;
+  document.getElementById('p-nome-search').value = '';
+  document.getElementById('p-suggest').style.display='none';
+  loadPercurso();
+}
+
+function searchNome(v) {
+  const sug = document.getElementById('p-suggest');
+  if(v.length<2) { sug.style.display='none'; return; }
+  const matches = DB.alunos.filter(a=>a.nome.toLowerCase().includes(v.toLowerCase())).slice(0,7);
+  if(!matches.length) { sug.style.display='none'; return; }
+  sug.style.display='block';
+  sug.innerHTML = matches.map(a=>`<div onclick="selAluno('${a.processo}','${a.nome}')" style="padding:9px 13px;cursor:pointer;font-size:12px;border-bottom:1px solid #f1f5f9;transition:.1s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">${a.nome} <code>${a.processo}</code></div>`).join('');
+}
+
+function selAluno(proc, nome) {
+  document.getElementById('p-proc').value = proc;
+  document.getElementById('p-nome-search').value = nome;
+  document.getElementById('p-suggest').style.display='none';
+  loadPercurso();
+}
+
+function loadPercurso() {
+  const proc = document.getElementById('p-proc').value.trim();
+  const aluno = DB.alunos.find(a=>a.processo===proc);
+  const body = document.getElementById('perc-body');
+  if(!proc) { body.innerHTML='<div class="no-data"><span class="no-data-ico">📋</span><div class="no-data-title">Pesquise um aluno</div></div>'; return; }
+  if(!aluno) {
+    body.innerHTML=`<div class="al al-warn"><span class="al-ico">⚠️</span><div>Processo <strong>${proc}</strong> não encontrado na base de dados. Verifique se os dados foram importados.</div></div>`;
+    return;
+  }
+  const idx = piepeIdx();
+  const pp = idx[proc];
+  const ini = aluno.nome.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const cc={'CCH-CT':'#0f3460','CCH-LH':'#4f46e5','CCH-AV':'#e94560','CCH-CS':'#f5a623'};
+  const c=cc[aluno.curso]||'#555';
+  let piepeHtml = '';
+  if(pp) {
+    const et = pp.exames.map(e=>{
+      const fl=[];
+      if(e.aprovacao) fl.push('<span class="badge b-g">Aprovação</span>');
+      if(e.melhoria) fl.push('<span class="badge b-y">Melhoria</span>');
+      if(e.provaingresso) fl.push('<span class="badge b-b">ES</span>');
+      if(!e.interno) fl.push('<span class="badge b-gray">Externo</span>');
+      return `<div class="dr"><span class="dn">${e.codigo} — ${e.disciplina} (${e.ano}.º ano)</span><span>${fl.join(' ')}</span></div>`;
+    }).join('');
+    const ah = pp.alertas.length>0 ? pp.alertas.map(a=>`<div class="al al-${a.tipo==='error'?'err':'warn'}"><span class="al-ico">${a.tipo==='error'?'🚨':'⚠️'}</span><div>${a.msg}<div class="legal">${a.lei}</div></div></div>`).join('') : '<div class="al al-ok"><span class="al-ico">✅</span><div>Nenhum alerta legal detetado.</div></div>';
+    piepeHtml=`<div class="card"><div class="card-title">📝 Inscrição PIEPE — Exames 2026</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="badge b-gray">Inscrição: ${pp.datainscricao}</span>
+        <span class="badge b-b">Turma ${pp.turma.toUpperCase()}</span>
+        ${pp.ingressoes?'<span class="badge b-b">Ingresso ES</span>':''}
+        ${pp.ase?`<span class="badge b-o">ASE Esc.${pp.escalaoase}</span>`:''}
+        ${pp.fichaenes?'<span class="badge b-p">ENES/NEE</span>':''}
+      </div>
+      ${et||'<div class="al al-info"><span class="al-ico">ℹ️</span><div>Sem exames inscritos.</div></div>'}
+      <div style="margin-top:10px">${ah}</div>
+    </div>`;
+  } else {
+    piepeHtml=`<div class="card"><div class="al al-info"><span class="al-ico">ℹ️</span><div>Sem inscrição PIEPE para exames 2026.</div></div></div>`;
+  }
+  body.innerHTML=`<div style="background:${c};color:#fff;border-radius:12px;padding:15px 20px;display:flex;align-items:center;gap:14px;margin-bottom:14px">
+    <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0">${ini}</div>
+    <div><div style="font-size:15px;font-weight:800">${aluno.nome}</div><div style="font-size:11px;opacity:.65;margin-top:2px">Processo ${aluno.processo} · ${aluno.ano}.º Ano · ${aluno.curso}</div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">${pp&&pp.tem_alertas?'<span class="badge b-r">⚠️ Alerta</span>':''}</div>
+  </div>${piepeHtml}`;
+}
+
+// ══════════════════════════════════════════════════════
+// PIEPE
+// ══════════════════════════════════════════════════════
+function renderPiepe(q) {
+  const fAno = document.getElementById('f-piepe-ano').value;
+  const fFlag = document.getElementById('f-piepe-flag').value;
+  const ql = q.toLowerCase();
+  const body = document.getElementById('piepe-lista-body');
+  if(!DB.piepe.length) {
+    body.innerHTML='<div class="no-data"><span class="no-data-ico">📝</span><div class="no-data-title">Sem inscrições PIEPE</div><div class="no-data-sub">Importe o ficheiro dados-piepe.csv</div></div>';
+    document.getElementById('piepe-count').textContent=''; return;
+  }
+  const filtered = DB.piepe.filter(s=>{
+    if(fAno && s.ano!==fAno) return false;
+    if(fFlag==='alerta' && !s.tem_alertas) return false;
+    if(fFlag==='melhoria' && !s.exames.some(e=>e.melhoria)) return false;
+    if(fFlag==='ingresso' && !s.ingressoes) return false;
+    if(fFlag==='ase' && !s.ase) return false;
+    if(ql && !s.nome.toLowerCase().includes(ql) && !s.exames.some(e=>e.disciplina.toLowerCase().includes(ql))) return false;
+    return true;
+  });
+  body.innerHTML=`<div class="card" style="padding:0"><table>
+    <thead><tr><th>Nome</th><th>Proc.</th><th>Curso</th><th>Ano/Turma</th><th>Exames</th><th>Flags</th><th>Estado</th></tr></thead>
+    <tbody>${filtered.map(s=>{
+      const et=s.exames.map(e=>`<span style="display:inline-flex;align-items:center;background:${e.melhoria?'#fef9c3':e.provaingresso?'#dbeafe':'#eef2ff'};color:${e.melhoria?'#92400e':e.provaingresso?'#1d4ed8':'#3730a3'};border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin:1px">${e.codigo}</span>`).join('');
+      const fl=[s.ingressoes?'<span class="badge b-b">ES</span>':'',s.ase?`<span class="badge b-o">ASE${s.escalaoase}</span>`:'',s.fichaenes?'<span class="badge b-p">NEE</span>':'',s.exames.some(e=>e.melhoria)?'<span class="badge b-y">Mel.</span>':''].filter(Boolean).join('');
+      return `<tr ${s.tem_alertas?'style="background:#fff8f8"':''}><td style="font-weight:600;max-width:160px">${s.nome}</td><td><code>${s.processo||'—'}</code></td><td><span class="badge b-b">${s.curso}</span></td><td>${s.ano?s.ano+'.º':''} ${s.turma?'T'+s.turma.toUpperCase():''}</td><td>${et||'—'}</td><td>${fl||'—'}</td><td>${s.tem_alertas?'<span class="badge b-r">⚠️ Alerta</span>':'<span class="badge b-g">✓ OK</span>'}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  document.getElementById('piepe-count').textContent=`${filtered.length} de ${DB.piepe.length} inscrições`;
+}
+
+function renderPiepeStats() {
+  const p = DB.piepe;
+  document.getElementById('piepe-sc').innerHTML=[
+    {l:'Total',v:p.length},{l:'Para ES',v:p.filter(x=>x.ingressoes).length},
+    {l:'Com ASE',v:p.filter(x=>x.ase).length},{l:'Melhoria',v:p.filter(x=>x.exames.some(e=>e.melhoria)).length},
+    {l:'Alertas',v:p.filter(x=>x.tem_alertas).length,w:true}
+  ].map(s=>`<div class="stat"><div class="stat-l">${s.l}</div><div class="stat-v" style="${s.w?'color:var(--accent)':''}">${s.v}</div></div>`).join('');
+  const ec={};p.forEach(s=>s.exames.forEach(e=>{ec[e.disciplina]=(ec[e.disciplina]||0)+1;}));
+  const sorted=Object.entries(ec).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const mx=sorted[0]?.[1]||1;
+  document.getElementById('piepe-ec').innerHTML=sorted.map(([d,n])=>`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${d}</span><strong>${n}</strong></div><div class="pb"><div class="pf" style="width:${Math.round(n/mx*100)}%;background:#4f46e5"></div></div></div>`).join('');
+  const cc2={};p.forEach(s=>{cc2[s.curso]=(cc2[s.curso]||0)+1;});
+  const cs=Object.entries(cc2).sort((a,b)=>b[1]-a[1]);const mx2=cs[0]?.[1]||1;
+  const cls={'CCH-LH':'#4f46e5','CCH-CS':'#0f3460','CCH-AV':'#e94560','CCH-CT':'#22c55e','Prof.':'#f5a623'};
+  document.getElementById('piepe-cc').innerHTML=cs.map(([c,n])=>`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${c}</span><strong>${n}</strong></div><div class="pb"><div class="pf" style="width:${Math.round(n/mx2*100)}%;background:${cls[c]||'#888'}"></div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// ALERTAS
+// ══════════════════════════════════════════════════════
+// Estado dos alertas: {piepeId: 'pendente'|'resolvido'|'externo'|'eliminado'}
+if(!DB.alerta_estados) DB.alerta_estados = {};
+
+function renderAlertas() {
+  const als = DB.piepe.filter(s => s.tem_alertas);
+  const total = als.length;
+  const resolvidos = als.filter(s => DB.alerta_estados[s.id] === 'resolvido').length;
+  const externos  = als.filter(s => DB.alerta_estados[s.id] === 'externo').length;
+  const eliminados= als.filter(s => DB.alerta_estados[s.id] === 'eliminado').length;
+  const pendentes = als.filter(s => !DB.alerta_estados[s.id] || DB.alerta_estados[s.id] === 'pendente').length;
+
+  document.getElementById('al-stats').innerHTML=[
+    {l:'Críticos',v:als.filter(s=>s.alertas.some(a=>a.tipo==='error')).length,c:'var(--red)'},
+    {l:'Pendentes',v:pendentes,c:'var(--gold)'},
+    {l:'Resolvidos',v:resolvidos,c:'var(--green)'},
+    {l:'Alunos externos',v:externos,c:'var(--blue)'},
+    {l:'Eliminados',v:eliminados,c:'var(--muted)'}
+  ].map(s=>`<div class="stat"><div class="stat-l">${s.l}</div><div class="stat-v" style="color:${s.c}">${s.v}</div></div>`).join('');
+
+  if(!als.length) {
+    document.getElementById('lista-alertas').innerHTML = DB.piepe.length
+      ? '<div class="al al-ok"><span class="al-ico">✅</span><div>Nenhum alerta detetado nas inscrições.</div></div>'
+      : '<div class="no-data"><span class="no-data-ico">🔔</span><div class="no-data-title">Sem dados</div><div class="no-data-sub">Importe os CSVs para ativar a deteção automática</div></div>';
+    return;
+  }
+
+  // Sort: pendentes primeiro, depois resolvidos, externos, eliminados
+  const ordem = {pendente:0, '':0, error:0, resolvido:2, externo:3, eliminado:4};
+  const sorted = [...als].sort((a,b) => (ordem[DB.alerta_estados[a.id]||'']||0) - (ordem[DB.alerta_estados[b.id]||'']||0));
+
+  document.getElementById('lista-alertas').innerHTML = sorted.map(s => {
+    const estado = DB.alerta_estados[s.id] || 'pendente';
+    const isCrit = s.alertas.some(a => a.tipo === 'error');
+    const estadoLabels = {pendente:'🔴 Pendente', resolvido:'✅ Resolvido', externo:'🔵 Aluno externo', eliminado:'⛔ Eliminado'};
+    const estadoColors = {pendente:'estado-critico', resolvido:'estado-resolvido', externo:'estado-externo', eliminado:'estado-resolvido'};
+    return `<div class="alerta-card ${estadoColors[estado]||'estado-critico'}" id="alerta-${s.id}">
+      <div class="alerta-body">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="font-size:18px">${estado==='resolvido'?'✅':estado==='externo'?'🔵':estado==='eliminado'?'⛔':'🚨'}</span>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px;color:var(--navy2)">${s.nome} ${s.processo?`<code>${s.processo}</code>`:''}</div>
+            <div style="font-size:12px;color:#475569;margin-top:3px">${s.alertas.map(a=>a.msg).join('<br>')}</div>
+            <div style="margin-top:6px">${s.alertas.map(a=>`<div class="legal">${a.lei}</div>`).join('')}</div>
+            <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
+              <span class="badge b-gray">📅 ${s.datainscricao}</span>
+              ${s.ingressoes?'<span class="badge b-b">Ingresso ES</span>':''}
+              ${s.ase?`<span class="badge b-o">ASE ${s.escalaoase}</span>`:''}
+              <span class="badge ${isCrit?'b-r':'b-y'}">${isCrit?'Crítico':'Aviso'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="alerta-acoes">
+        <button class="btn-alerta btn-alerta-del" onclick="setAlertaEstado('${s.id}','eliminado')" title="Eliminar este registo de alerta">🗑️ Eliminar registo</button>
+        <button class="btn-alerta btn-alerta-ok"  onclick="setAlertaEstado('${s.id}','resolvido')" title="Marcar como resolvido">✅ Resolvido</button>
+        <button class="btn-alerta btn-alerta-ext" onclick="setAlertaEstado('${s.id}','externo')"   title="Classificar como aluno externo">🔵 Aluno externo</button>
+        ${estado!=='pendente'?`<button class="btn-alerta" style="border-color:var(--border);color:var(--muted);background:#fff" onclick="setAlertaEstado('${s.id}','pendente')">↩️ Repor</button>`:''}
+        <span class="alerta-acoes estado-tag">${estadoLabels[estado]}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setAlertaEstado(id, estado) {
+  if(!DB.alerta_estados) DB.alerta_estados = {};
+  DB.alerta_estados[id] = estado;
+  LS.set('alerta_estados', DB.alerta_estados);
+  renderAlertas();
+  const msgs = {eliminado:'Registo eliminado', resolvido:'Marcado como resolvido', externo:'Classificado como aluno externo', pendente:'Reposto como pendente'};
+  toast(msgs[estado]||estado, estado==='eliminado'?'warn':estado==='resolvido'?'ok':'');
+}
+
+function verificarTodosAlertas() {
+  const als = DB.piepe.filter(s => s.tem_alertas);
+  const total = als.length;
+  const pendentes = als.filter(s => !DB.alerta_estados[s.id] || DB.alerta_estados[s.id] === 'pendente');
+  const resolvidos = als.filter(s => DB.alerta_estados[s.id] === 'resolvido');
+  const externos  = als.filter(s => DB.alerta_estados[s.id] === 'externo');
+  const eliminados= als.filter(s => DB.alerta_estados[s.id] === 'eliminado');
+
+  const rp  = document.getElementById('rp-verif-alertas');
+  const rph = document.getElementById('rph-verif-alertas');
+  const rpt = document.getElementById('rpt-verif-alertas');
+  const rpb2= document.getElementById('rpb2-verif-alertas');
+  rp.classList.add('show');
+
+  if(pendentes.length === 0) {
+    rph.className = 'rp-h rp-ok'; rpt.className = 'rp-t rp-tok';
+    rpt.textContent = '✓ Todos os alertas tratados';
+    rpb2.innerHTML = `
+      <div class="al al-ok"><span class="al-ico">✅</span><div>Todos os <strong>${total}</strong> alertas foram classificados. Nenhum pendente.</div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px">
+        <span>✅ Resolvidos: <strong>${resolvidos.length}</strong></span>
+        <span>🔵 Externos: <strong>${externos.length}</strong></span>
+        <span>⛔ Eliminados: <strong>${eliminados.length}</strong></span>
+      </div>
+      <div class="legal" style="margin-top:10px">Verificação concluída em ${new Date().toLocaleString('pt-PT')} · EduLex</div>`;
+  } else {
+    rph.className = 'rp-h rp-err'; rpt.className = 'rp-t rp-terr';
+    rpt.textContent = `✕ ${pendentes.length} alerta(s) ainda pendente(s)`;
+    rpb2.innerHTML = `
+      <div class="al al-err"><span class="al-ico">⚠️</span><div><strong>${pendentes.length}</strong> de <strong>${total}</strong> alertas ainda não foram tratados:</div></div>
+      ${pendentes.map(s=>`<div style="padding:6px 10px;font-size:12px;border-left:3px solid var(--red);margin-bottom:4px;background:#fff8f8;border-radius:0 5px 5px 0"><strong>${s.nome}</strong> — ${s.alertas.map(a=>a.msg).join('; ')}</div>`).join('')}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px">
+        <span>✅ Resolvidos: <strong>${resolvidos.length}</strong></span>
+        <span>🔵 Externos: <strong>${externos.length}</strong></span>
+        <span>⛔ Eliminados: <strong>${eliminados.length}</strong></span>
+      </div>
+      <div class="legal" style="margin-top:8px">Verificação em ${new Date().toLocaleString('pt-PT')} · EduLex</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ASE
+// ══════════════════════════════════════════════════════
+function renderASE() {
+  const ase=DB.piepe.filter(s=>s.ase||s.fichaenes);
+  document.getElementById('ase-body').innerHTML=ase.length===0
+    ?'<div class="no-data"><span class="no-data-ico">🆘</span><div class="no-data-title">Sem dados ASE</div></div>'
+    :`<table><thead><tr><th>Nome</th><th>Processo</th><th>Curso</th><th>Ano/Turma</th><th>Escalão ASE</th><th>ENES/NEE</th><th>Exames</th></tr></thead><tbody>${ase.map(s=>`<tr><td style="font-weight:600">${s.nome}</td><td><code>${s.processo||'—'}</code></td><td><span class="badge b-b">${s.curso}</span></td><td>${s.ano?s.ano+'.º':''} ${s.turma?'T'+s.turma.toUpperCase():''}</td><td>${s.ase?`<span class="badge b-o">Esc.${s.escalaoase}</span>`:'—'}</td><td>${s.fichaenes?'<span class="badge b-p">Sim</span>':'Não'}</td><td>${s.exames.map(e=>`<span style="display:inline-flex;background:#eef2ff;color:#3730a3;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin:1px">${e.codigo}</span>`).join('')||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════
+// VALIDAÇÃO INSCRIÇÃO
+// ══════════════════════════════════════════════════════
+function validarInscricao() {
+  const proc=document.getElementById('v-proc').value.trim();
+  const cod=document.getElementById('v-cod').value;
+  const fin=document.getElementById('v-fin').value;
+  const interno=document.getElementById('v-int').value;
+  const ano=document.getElementById('v-ano').value;
+  const disc=document.getElementById('v-cod').options[document.getElementById('v-cod').selectedIndex].text;
+  const rp=document.getElementById('rp-val'),rph=document.getElementById('rph-val'),rpt=document.getElementById('rpt-val'),rpb=document.getElementById('rpb-val'),rpb2=document.getElementById('rpb2-val');
+  rp.classList.add('show');
+  const erros=[],avisos=[];
+  if(fin==='melhoria'&&interno==='n') erros.push('Para melhoria, é obrigatório ter tido frequência interna.');
+  if(interno==='n'&&fin!=='ingresso') avisos.push('Candidato externo — verificar registo no IAVE.');
+  if(proc) { const al=DB.alunos.find(a=>a.processo===proc); if(!al) erros.push(`Processo ${proc} não encontrado.`); else if(al.ano!==ano) avisos.push(`Aluno no ${al.ano}.º ano; exame do ${ano}.º ano. Verificar elegibilidade.`); }
+  if(erros.length>0) {
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Inscrição inválida';
+    rpb.className='badge b-r';rpb.textContent='Inválida';
+    rpb2.innerHTML=erros.map(e=>`<div class="al al-err"><span class="al-ico">✕</span><div>${e}</div></div>`).join('')+avisos.map(a=>`<div class="al al-warn"><span class="al-ico">⚠️</span><div>${a}</div></div>`).join('')+`<div class="legal">Reg. Provas 2026, art.º 3.º, 6.º, 14.º · Port. 278/2023</div>`;
+  } else {
+    rph.className='rp-h rp-ok';rpt.className='rp-t rp-tok';rpt.textContent='✓ Inscrição válida';
+    rpb.className='badge b-g';rpb.textContent='Válida';
+    rpb2.innerHTML=`<div class="al al-ok"><span class="al-ico">✅</span><div>Inscrição em <strong>${disc}</strong> (${fin}) — conformidade verificada.</div></div>`+avisos.map(a=>`<div class="al al-warn"><span class="al-ico">⚠️</span><div>${a}</div></div>`).join('')+`<div class="legal">Reg. Provas 2026 · Port. 278/2023</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PFP PERMUTAS
+// ══════════════════════════════════════════════════════
+// ── TABELAS REAIS de permutas (DL 55/2018 + Port. 226-A/2018, Anexos VI e VII) ──
+const NPERMS_CFG = ['Português','Língua Estrangeira I, II ou III','Filosofia','Educação Física'];
+const TRIENAIS = {CT:'Matemática A', CS:'Matemática A', LH:'História A', AV:'Desenho A'};
+
+const PERMUTAS_BIENAIS = {
+  CT: {
+    'Física e Química A':     ['Economia A','Geografia A','História B','Língua Estrangeira II/III','História da Cultura e das Artes'],
+    'Biologia e Geologia':    ['Economia A','Geografia A','História B','Língua Estrangeira II/III','História da Cultura e das Artes'],
+    'Geometria Descritiva A': ['Economia A','Geografia A','História B','Língua Estrangeira II/III','História da Cultura e das Artes'],
+  },
+  CS: {
+    'Economia A':  ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Língua Estrangeira II/III','História da Cultura e das Artes'],
+    'Geografia A': ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Língua Estrangeira II/III','História da Cultura e das Artes'],
+    'História B':  ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Língua Estrangeira II/III'], // sem história da cultura (homóloga)
+  },
+  LH: {
+    'Geografia A':              ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Economia A','Matemática B'],
+    'Latim A':                  ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Economia A','Matemática B'],
+    'Língua Estrangeira II/III':['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Economia A','Matemática B'],
+    'Literatura Portuguesa':    ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Economia A','Matemática B'],
+    'MACS':                     ['Física e Química A','Biologia e Geologia','Geometria Descritiva A','Economia A'], // sem Mat.B (homóloga)
+  },
+  AV: {
+    'Geometria Descritiva A':        ['Física e Química A','Biologia e Geologia','Economia A','Geografia A','História B','Língua Estrangeira II/III','MACS'],
+    'Matemática B':                  ['Física e Química A','Biologia e Geologia','Economia A','Geografia A','História B','Língua Estrangeira II/III'], // sem MACS (homóloga)
+    'História da Cultura e das Artes':['Física e Química A','Biologia e Geologia','Economia A','Geografia A','Língua Estrangeira II/III','MACS'], // sem Hist.B (homóloga)
+  }
+};
+
+const PERMUTAS_ANUAIS = {
+  CT: {
+    'Biologia': ['Aplicações Informáticas B','Direito','Economia C','Filosofia A','Geografia C','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina das Artes','Oficina de Multimédia','Psicologia B','Antropologia','Sociologia'],
+    'Física':   ['Aplicações Informáticas B','Direito','Economia C','Filosofia A','Geografia C','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina das Artes','Oficina de Multimédia','Psicologia B','Antropologia','Sociologia'],
+    'Química':  ['Aplicações Informáticas B','Direito','Economia C','Filosofia A','Geografia C','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina das Artes','Oficina de Multimédia','Psicologia B','Antropologia','Sociologia'],
+    'Geologia': ['Aplicações Informáticas B','Direito','Economia C','Filosofia A','Geografia C','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina das Artes','Oficina de Multimédia','Psicologia B','Antropologia','Sociologia'],
+  },
+  CS: {
+    'Economia C':  ['Aplicações Informáticas B','Biologia','Direito','Filosofia A','Física','Geologia','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina de Artes ou Multimédia B','Psicologia B','Química','Antropologia','Sociologia'],
+    'Geografia C': ['Aplicações Informáticas B','Biologia','Direito','Filosofia A','Física','Geologia','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina de Artes ou Multimédia B','Psicologia B','Química','Antropologia','Sociologia'],
+    'Sociologia':  ['Aplicações Informáticas B','Biologia','Direito','Filosofia A','Física','Geologia','Língua Estrangeira I,II ou III','Materiais e Tecnologias','Oficina de Artes ou Multimédia B','Psicologia B','Química','Antropologia','Sociologia'],
+  },
+  LH: {
+    'Filosofia A':                   ['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+    'Geografia C':                   ['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+    'Latim B':                       ['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+    'Literatura de Língua Portuguesa':['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+    'Psicologia B':                  ['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+    'Sociologia':                    ['Antropologia','Aplicações Informáticas B','Biologia','Direito','Economia C','Física','Geologia','Materiais e Tecnologias','Oficinas de Artes','Oficina de Multimédia','Química'],
+  },
+  AV: {
+    'Oficina de Artes':         ['Aplicações Informáticas B','Biologia','Química','Direito','Economia C','Filosofia A','Física','Geografia C','Geologia','Língua Estrangeira I,II ou III','Psicologia B','Antropologia','Sociologia'],
+    'Oficina de Multimédia':    ['Aplicações Informáticas B','Biologia','Química','Direito','Economia C','Filosofia A','Física','Geografia C','Geologia','Língua Estrangeira I,II ou III','Psicologia B','Antropologia','Sociologia'],
+    'Materiais e Tecnologias':  ['Aplicações Informáticas B','Biologia','Química','Direito','Economia C','Filosofia A','Física','Geografia C','Geologia','Língua Estrangeira I,II ou III','Psicologia B','Antropologia','Sociologia'],
+  }
+};
+
+// Notas de disciplinas homólogas proibidas
+const HOMOLOGAS_PROIB = {
+  'CS': [['História B','História da Cultura e das Artes']],
+  'LH': [['MACS','Matemática B']],
+  'AV': [['Matemática B','MACS'],['História da Cultura e das Artes','História B']]
+};
+
+function pfpDiscs(){
+  const ag = document.getElementById('pfp-ag').value;
+  const tipo = document.getElementById('pfp-tipo').value;
+  const tabela = tipo === 'bienal' ? PERMUTAS_BIENAIS[ag] : PERMUTAS_ANUAIS[ag];
+  const saidas = Object.keys(tabela||{});
+  document.getElementById('pfp-s').innerHTML = saidas.map(d=>`<option value="${d}">${d}</option>`).join('');
+  pfpUpdateEntrada();
+}
+
+function pfpUpdateEntrada(){
+  const ag = document.getElementById('pfp-ag').value;
+  const tipo = document.getElementById('pfp-tipo').value;
+  const saida = document.getElementById('pfp-s').value;
+  const tabela = tipo === 'bienal' ? PERMUTAS_BIENAIS[ag] : PERMUTAS_ANUAIS[ag];
+  const opcoes = (tabela && tabela[saida]) || [];
+  document.getElementById('pfp-e').innerHTML = opcoes.length
+    ? opcoes.map(d=>`<option value="${d}">${d}</option>`).join('')
+    : '<option value="">— Selecione primeiro a disciplina de saída —</option>';
+  const nOpts = opcoes.length;
+  document.getElementById('pfp-e-info').textContent = nOpts
+    ? `⚖️ ${nOpts} opções válidas segundo DL 55/2018 + Port. 226-A/2018`
+    : '';
+}
+
+function showTabNested(activeId, prefix){
+  const tabs = document.querySelectorAll(`[id^="${prefix}"]`);
+  tabs.forEach(t => t.style.display = 'none');
+  const tabBtns = document.querySelectorAll(`[id^="tab-"]`);
+  tabBtns.forEach(t => t.classList.remove('active'));
+  const el = document.getElementById(activeId.replace('tab-','tbl-'));
+  if(el) el.style.display = 'block';
+  const btn = document.getElementById(activeId);
+  if(btn) btn.classList.add('active');
+}
+
+function validarPermuta(){
+  const ag    = document.getElementById('pfp-ag').value;
+  const tipo  = document.getElementById('pfp-tipo').value;
+  const saida = document.getElementById('pfp-s').value;
+  const entrada= document.getElementById('pfp-e').value;
+  const motivo= document.getElementById('pfp-m').value;
+  const doc   = document.getElementById('pfp-doc').value;
+  const mantem= document.getElementById('pfp-mantem').value;
+
+  const rp=document.getElementById('rp-pfp'),rph=document.getElementById('rph-pfp'),
+        rpt=document.getElementById('rpt-pfp'),rpb=document.getElementById('rpb-pfp'),
+        rpb2=document.getElementById('rpb2-pfp');
+  rp.classList.add('show');
+
+  // Regra 0: disciplinas vazias
+  if(!saida||!entrada){
+    rph.className='rp-h rp-warn';rpt.className='rp-t rp-twarn';rpt.textContent='⚠️ Dados incompletos';
+    rpb.className='badge b-y';rpb.textContent='Incompleto';
+    rpb2.innerHTML='<div class="al al-warn"><span class="al-ico">⚠️</span><div>Selecione a disciplina de saída e a disciplina de entrada para validar.</div></div>';return;
+  }
+
+  // Regra 1: CFG não permutável
+  if(NPERMS_CFG.includes(saida)){
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Permuta proibida — Formação Geral';
+    rpb.className='badge b-r';rpb.textContent='Proibida';
+    rpb2.innerHTML=`<div class="al al-err"><span class="al-ico">🚫</span><div><strong>${saida}</strong> pertence à Componente de Formação Geral — não admite permuta em qualquer circunstância.</div></div><div class="legal">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º, n.º 1</div>`;return;
+  }
+
+  // Regra 2: disciplina trienal não permutável
+  if(saida===TRIENAIS[ag]){
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Permuta proibida — Disciplina Trienal';
+    rpb.className='badge b-r';rpb.textContent='Proibida';
+    rpb2.innerHTML=`<div class="al al-err"><span class="al-ico">🚫</span><div><strong>${saida}</strong> é a disciplina trienal do curso — de frequência obrigatória, não pode ser permutada.</div></div><div class="legal">Port. 226-A/2018, art.º 16.º, n.º 2, alínea b)</div>`;return;
+  }
+
+  // Regra 3: verificar se a entrada está nas opções válidas para esta saída
+  const tabela = tipo==='bienal' ? PERMUTAS_BIENAIS[ag] : PERMUTAS_ANUAIS[ag];
+  const opcoesValidas = (tabela&&tabela[saida])||[];
+  if(!opcoesValidas.includes(entrada)){
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Permuta não autorizada pelas tabelas legais';
+    rpb.className='badge b-r';rpb.textContent='Não autorizada';
+    rpb2.innerHTML=`<div class="al al-err"><span class="al-ico">🚫</span><div>A disciplina <strong>${entrada}</strong> não consta das opções de permuta para <strong>${saida}</strong> no curso ${ag}, segundo as tabelas do DL 55/2018 (Anexos VI e VII).</div></div><div class="al al-info"><span class="al-ico">💡</span><div>Opções válidas: ${opcoesValidas.join(' · ')||'(nenhuma)'}</div></div><div class="legal">DL 55/2018, Anexos VI e VII · Port. 226-A/2018, art.º 16.º</div>`;return;
+  }
+
+  // Regra 4: disciplinas homólogas
+  const homol = HOMOLOGAS_PROIB[ag]||[];
+  const isHomologa = homol.some(par=>(par[0]===saida&&par[1]===entrada)||(par[1]===saida&&par[0]===entrada));
+  if(isHomologa){
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Disciplinas homólogas — permuta proibida';
+    rpb.className='badge b-r';rpb.textContent='Proibida';
+    rpb2.innerHTML=`<div class="al al-err"><span class="al-ico">🚫</span><div><strong>${saida}</strong> e <strong>${entrada}</strong> são disciplinas homólogas — a permuta entre elas não é permitida por abrangerem a mesma área do saber.</div></div><div class="legal">Port. 226-A/2018, art.º 16.º, n.º 1, alínea c)</div>`;return;
+  }
+
+  // Regra 5: aluno fica sem disciplina bienal do curso
+  if(mantem==='n' && tipo==='bienal'){
+    rph.className='rp-h rp-err';rpt.className='rp-t rp-terr';rpt.textContent='✕ Sem disciplina bienal do curso — inválido';
+    rpb.className='badge b-r';rpb.textContent='Inválido';
+    rpb2.innerHTML=`<div class="al al-err"><span class="al-ico">🚫</span><div>O aluno deve manter <strong>pelo menos uma disciplina bienal da natureza do seu curso</strong>. Esta permuta deixaria o aluno sem qualquer bienal do curso ${ag}.</div></div><div class="legal">Port. 226-A/2018, art.º 16.º, n.º 2, alínea b)</div>`;return;
+  }
+
+  // Avisos não bloqueantes
+  const avisos=[];
+  if(doc==='n') avisos.push('Documentação de suporte em falta — o requerimento do EE é obrigatório para homologação.');
+  if(tipo==='bienal') avisos.push(`⏰ Prazo: na matrícula do 10.º ano ou até ao 5.º dia útil do 2.º período. — Port. 226-A/2018, art.º 16.º, n.º 3, al. a)`);
+  if(tipo==='anual')  avisos.push(`⏰ Prazo: na renovação da matrícula do 12.º ano ou até ao 5.º dia útil do 2.º período. — Port. 226-A/2018, art.º 16.º, n.º 3, al. b)`);
+  if(motivo==='orient') avisos.push('Orientação vocacional: confirmar com o SPO antes da homologação.');
+  avisos.push('O aluno pode não acompanhar a turma de origem. O horário fica condicionado à oferta disponível.');
+
+  rph.className='rp-h rp-ok';rpt.className='rp-t rp-tok';rpt.textContent='✓ Permuta válida — sujeita a homologação';
+  rpb.className='badge b-g';rpb.textContent='Válida';
+  rpb2.innerHTML=`
+    <div class="al al-ok"><span class="al-ico">✅</span><div>
+      Permuta de <strong>${saida}</strong> por <strong>${entrada}</strong> (${tipo}) — <strong>autorizada</strong> pelas tabelas do DL 55/2018 para o curso ${ag}.
+    </div></div>`+
+    avisos.map(a=>`<div class="al al-warn"><span class="al-ico">⚠️</span><div>${a}</div></div>`).join('')+`
+    <div style="font-size:12px;margin-top:12px;line-height:2;color:#334155">
+      <strong>Passos obrigatórios:</strong><br>
+      1️⃣ Requerimento do EE (ou aluno maior) ao diretor<br>
+      2️⃣ Informação sobre condições de conclusão e prosseguimento de estudos<br>
+      3️⃣ Verificação da disponibilidade da disciplina na escola<br>
+      4️⃣ Homologação pelo diretor e registo no processo individual<br>
+      5️⃣ Atualização no Gestor de Alunos
+    </div>
+    <div class="legal">DL 55/2018, art.º 16.º · Port. 226-A/2018, art.º 16.º · Anexos VI e VII</div>`;
+}
+
+
+function validarSub(){
+  const tipo  = document.getElementById('sub-t').value;
+  const motivo= document.getElementById('sub-m').value;
+  const orig  = document.getElementById('sub-o').value.trim();
+  const nova  = document.getElementById('sub-n').value.trim();
+  const just  = document.getElementById('sub-j').value.trim();
+  const rp=document.getElementById('rp-sub'),rph=document.getElementById('rph-sub'),rpt=document.getElementById('rpt-sub'),rpb2=document.getElementById('rpb2-sub');
+  rp.classList.add('show');
+
+  // Validações iniciais
+  if(!orig || !nova){
+    rph.className='rp-h rp-warn';rpt.className='rp-t rp-twarn';rpt.textContent='⚠️ Dados incompletos';
+    rpb2.innerHTML='<div class="al al-warn"><span class="al-ico">⚠️</span><div>Indique a disciplina original e a disciplina substituta.</div></div>';return;
+  }
+  if(just.split(' ').filter(w=>w).length < 15){
+    rph.className='rp-h rp-warn';rpt.className='rp-t rp-twarn';rpt.textContent='⚠️ Justificação insuficiente';
+    rpb2.innerHTML='<div class="al al-warn"><span class="al-ico">⚠️</span><div>A justificação pedagógica deve ter pelo menos 30 palavras — obrigatória para fundamentar o processo.</div></div><div class="legal">Port. 278/2023, art.º 8.º — fundamentação obrigatória e expressa</div>';return;
+  }
+
+  // CFG muito condicionada
+  if(tipo==='cfg'){
+    rph.className='rp-h rp-warn';rpt.className='rp-t rp-twarn';rpt.textContent='⚠️ Substituição muito condicionada';
+    rpb2.innerHTML='<div class="al al-warn"><span class="al-ico">⚠️</span><div>Substituição na Componente de Formação Geral — apenas em casos excecionais com NEE grave documentada. Requer parecer do conselho pedagógico e despacho fundamentado do diretor.</div></div><div class="legal">Port. 278/2023, art.º 8.º, n.º 3 · Port. 266-A/2018, Anexo I</div>';return;
+  }
+
+  const avisos = [];
+
+  // Motivo pessoal: avisos adicionais
+  if(motivo === 'pessoal') {
+    avisos.push('Motivo pessoal/familiar: a substituição deve ser acompanhada de declaração assinada pelo encarregado de educação e aprovada pelo diretor. Não existe direito subjetivo à substituição por motivo pessoal — depende de avaliação casuística.');
+    avisos.push('Verificar se o motivo pessoal tem enquadramento no Regulamento Interno da escola e no regime de faltas.');
+  }
+  if(motivo === 'orient') {
+    avisos.push('Orientação vocacional: confirmar com o serviço de psicologia e orientação (SPO) antes da homologação.');
+  }
+  if(tipo === 'espec') {
+    avisos.push('Substituição de disciplina específica: verificar se a disciplina substituta mantém a elegibilidade para os exames nacionais do curso.');
+  }
+
+  const motivoLabels = {NEE:'NEE — Necessidades Educativas Especiais', pfp:'PFP homologado', orient:'Orientação vocacional', pessoal:'Pessoal / Familiar fundamentado'};
+
+  rph.className='rp-h rp-ok';rpt.className='rp-t rp-tok';rpt.textContent='✓ Substituição válida — verificar procedimentos';
+  rpb2.innerHTML=`
+    <div class="al al-ok"><span class="al-ico">✅</span><div>
+      Substituição de <strong>${orig}</strong> por <strong>${nova}</strong> — devidamente fundamentada.<br>
+      <span style="font-size:11px;margin-top:3px;display:block">Motivo: ${motivoLabels[motivo]||motivo} · Tipo: ${{opt:'Opcional→Opcional',espec:'Específica→Equivalente',bienal:'Bienal→Anual',cfg:'Formação Geral'}[tipo]}</span>
+    </div></div>`+
+    avisos.map(a=>`<div class="al al-warn"><span class="al-ico">⚠️</span><div>${a}</div></div>`).join('')+
+    `<div class="div" style="margin-top:12px">Procedimentos obrigatórios</div>
+    <div style="font-size:12px;line-height:2;color:#374151">
+      📋 Registo no processo individual do aluno<br>
+      👨‍👩‍👧 Concordância do encarregado de educação${motivo==='pessoal'?' (declaração obrigatória)':''}<br>
+      🏫 Deliberação do conselho de turma<br>
+      ✅ Homologação pelo diretor — despacho fundamentado<br>
+      📊 Atualização do plano de estudos no Gestor de Alunos    </div>
+    <div class="legal">Port. 278/2023, art.º 8.º · FAQ PFP 2024, Q.12${motivo==='pessoal'?' · Regulamento Interno da escola':''}</div>`;
+}
+
+function limparSub(){
+  document.getElementById('sub-o').value='';
+  document.getElementById('sub-n').value='';
+  document.getElementById('sub-j').value='';
+  document.getElementById('rp-sub').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════
+// CONCLUSÃO
+// ══════════════════════════════════════════════════════
+function verificarConc(){
+  const notas=[1,2,3,4,5,6,7,8,9].map(i=>+(document.getElementById('cn'+i).value)||0).filter(n=>n>0);
+  const media=notas.length?(notas.reduce((a,b)=>a+b,0)/notas.length):0;
+  const reprov=notas.filter(n=>n<10);
+  const port=+(document.getElementById('cn1').value)||0;
+  const rp=document.getElementById('rp-conc'),rph=document.getElementById('rph-conc'),rpt=document.getElementById('rpt-conc'),rpb2=document.getElementById('rpb2-conc');
+  rp.classList.add('show');
+  const erros=[];
+  if(port>0&&port<10) erros.push('Português (disciplina de exame obrigatório) com nota <10.');
+  if(reprov.length) erros.push(`${reprov.length} disciplina(s) com nota inferior a 10.`);
+  const mf=media.toFixed(1),pc=Math.min(100,+mf*5);
+  const col=media>=14?'var(--green)':media>=10?'#4f46e5':'var(--red)';
+  const ok=!erros.length&&media>=10;
+  rph.className='rp-h '+(ok?'rp-ok':'rp-err');rpt.className='rp-t '+(ok?'rp-tok':'rp-terr');rpt.textContent=ok?'✓ Cumpre requisitos':'✕ Não cumpre requisitos';
+  rpb2.innerHTML=`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Média interna</span><strong style="color:${col}">${mf} valores</strong></div><div class="pb" style="height:8px"><div class="pf" style="width:${pc}%;background:${col}"></div></div></div>`+erros.map(e=>`<div class="al al-err"><span class="al-ico">✕</span><div>${e}</div></div>`).join('')+(ok?`<div class="al al-ok"><span class="al-ico">✅</span><div>Média <strong>${mf} val.</strong> Sem reprovações. Cumpre os requisitos formais.</div></div>`:'')+`<div class="legal">Port. 266-A/2018, art.º 12.º · Doc. DGE "Conclusão do Ensino Secundário"</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// SIMULADOR CFES
+// ══════════════════════════════════════════════════════
+function calcCFES(){
+  const ci=+document.getElementById('si-ci').value;
+  const e1=+document.getElementById('si-e1').value,e2=+document.getElementById('si-e2').value;
+  const n=+document.getElementById('si-ne').value,repr=document.getElementById('si-repr').value,pfp=document.getElementById('si-pfp').value;
+  const conv=x=>x>20?x/10:x;
+  const e1c=conv(e1),e2c=conv(e2);
+  let cfes=n===0?ci:n===1?ci*.7+e1c*.3:ci*.7+((e1c+e2c)/2)*.3;
+  cfes=Math.round(cfes*10)/10;
+  const ok=cfes>=10&&repr==='n';
+  const col=cfes>=14?'var(--green)':cfes>=10?'#4f46e5':'var(--red)';
+  const rp=document.getElementById('rp-sim'),rph=document.getElementById('rph-sim'),rpt=document.getElementById('rpt-sim'),rpb2=document.getElementById('rpb2-sim');
+  rp.classList.add('show');
+  rph.className='rp-h '+(ok?'rp-ok':'rp-err');rpt.className='rp-t '+(ok?'rp-tok':'rp-terr');rpt.textContent=ok?'✓ Conclui o ensino secundário':'✕ Não conclui';
+  rpb2.innerHTML=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">CFES calculada</span><span style="font-size:22px;font-weight:800;color:${col}">${cfes} valores</span></div><div class="pb" style="height:10px"><div class="pf" style="width:${Math.min(100,cfes*5)}%;background:${col}"></div></div></div>`+(repr==='s'?'<div class="al al-err"><span class="al-ico">✕</span><div>Reprovação em disciplina(s) — impede a conclusão.</div></div>':'')+(cfes<10?'<div class="al al-err"><span class="al-ico">✕</span><div>CFES inferior a 10 — não satisfaz o requisito mínimo.</div></div>':'')+(ok&&cfes>=14?'<div class="al al-ok"><span class="al-ico">🏆</span><div>Resultado excelente!</div></div>':'')+(pfp==='s'?'<div class="al al-warn"><span class="al-ico">⚠️</span><div>PFP — verificar exames obrigatórios no percurso homologado.</div></div>':'')+`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono)">CI=${ci} | ${n>0?`E=${n===1?e1c:((e1c+e2c)/2).toFixed(1)}`:'s/exame'} | fórmula: ${n===0?'CFES=CI':n===1?'0.7×CI+0.3×E1':'0.7×CI+0.3×[(E1+E2)/2]'}</div><div class="legal">Port. 266-A/2018, art.º 12.º</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// LEGISLAÇÃO CRUD
+// ══════════════════════════════════════════════════════
+function renderLeg(q) {
+  const fFonte = document.getElementById('f-leg-fonte').value;
+  const ql = q.toLowerCase();
+  let filtered = DB.leg.filter(l=>{
+    if(fFonte && l.fonte!==fFonte) return false;
+    if(ql && !l.ref.toLowerCase().includes(ql) && !l.tema.toLowerCase().includes(ql) && !l.texto.toLowerCase().includes(ql)) return false;
+    return true;
+  });
+  const div = document.getElementById('leg-list');
+  if(!filtered.length) { div.innerHTML='<div class="no-data"><span class="no-data-ico">📚</span><div class="no-data-title">Nenhuma norma encontrada</div><div class="no-data-sub">Adicione normas com o botão "Nova norma"</div></div>'; return; }
+  div.innerHTML = filtered.map(l=>`
+    <div class="leg-card">
+      <div class="leg-card-ref">${l.ref}</div>
+      <div class="leg-card-tema">${l.tema}</div>
+      <div class="leg-card-texto">${l.texto}</div>
+      <div class="leg-card-fonte"><span class="badge b-navy">${l.fonte}</span>${l.data?' · '+l.data:''}</div>
+      <div class="leg-card-actions">
+        <button class="btn btn-o btn-xs" onclick="editLeg(${l.id})">✏️ Editar</button>
+        <button class="btn btn-del btn-xs" onclick="delLeg(${l.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openModalLeg(id=null) {
+  document.getElementById('modal-leg-title').textContent = id ? 'Editar Norma' : 'Nova Norma Legislativa';
+  document.getElementById('leg-edit-id').value = id||'';
+  document.getElementById('leg-ref').value='';
+  document.getElementById('leg-tema').value='';
+  document.getElementById('leg-texto').value='';
+  document.getElementById('leg-fonte').value='Portaria 278/2023';
+  document.getElementById('leg-data').value='';
+  if(id) {
+    const l=DB.leg.find(x=>x.id===id);
+    if(l){document.getElementById('leg-ref').value=l.ref;document.getElementById('leg-tema').value=l.tema;document.getElementById('leg-texto').value=l.texto;document.getElementById('leg-fonte').value=l.fonte;document.getElementById('leg-data').value=l.data||'';}
+  }
+  document.getElementById('modal-leg').classList.add('open');
+}
+
+function editLeg(id){ openModalLeg(id); }
+
+function saveLeg() {
+  const ref=document.getElementById('leg-ref').value.trim();
+  const tema=document.getElementById('leg-tema').value.trim();
+  const texto=document.getElementById('leg-texto').value.trim();
+  if(!ref||!tema||!texto){toast('Preencha referência, tema e texto','err');return;}
+  const id=+document.getElementById('leg-edit-id').value;
+  const entry={id:id||Date.now(),ref,tema,texto,fonte:document.getElementById('leg-fonte').value,data:document.getElementById('leg-data').value};
+  if(id) { const i=DB.leg.findIndex(x=>x.id===id); if(i>=0) DB.leg[i]=entry; }
+  else DB.leg.push(entry);
+  save();
+  closeModal('modal-leg');
+  renderLeg(document.getElementById('s-leg').value);
+  toast(id?'Norma atualizada':'Norma adicionada','ok');
+}
+
+function delLeg(id) {
+  if(!confirm('Eliminar esta norma?')) return;
+  DB.leg=DB.leg.filter(l=>l.id!==id);
+  save();
+  renderLeg(document.getElementById('s-leg').value);
+  toast('Norma eliminada','warn');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════
+function loadConfig() {
+  const c=DB.config;
+  document.getElementById('cfg-escola').value=c.escola||'';
+  document.getElementById('cfg-codigo').value=c.codigo||'';
+  document.getElementById('cfg-anoletivo').value=c.anoletivo||'';
+  document.getElementById('cfg-diretor').value=c.diretor||'';
+  document.getElementById('cfg-sep').value=c.sep||';';
+}
+
+function saveConfig() {
+  DB.config={escola:document.getElementById('cfg-escola').value.trim(),codigo:document.getElementById('cfg-codigo').value.trim(),anoletivo:document.getElementById('cfg-anoletivo').value.trim(),diretor:document.getElementById('cfg-diretor').value.trim(),sep:document.getElementById('cfg-sep').value};
+  save();
+  toast('Configurações guardadas','ok');
+}
+
+// ══════════════════════════════════════════════════════
+// DATA MANAGEMENT
+// ══════════════════════════════════════════════════════
+function clearData(type) {
+  const labels={alunos:'dados de alunos',piepe:'inscrições PIEPE',legislacao:'base legislativa'};
+  if(!confirm(`Eliminar ${labels[type]}? Esta ação é irreversível.`)) return;
+  if(type==='alunos') DB.alunos=[];
+  else if(type==='piepe') DB.piepe=[];
+  else if(type==='legislacao') DB.leg=[];
+  save();
+  toast(`${labels[type]} eliminados`,'warn');
+  initDashboard();
+}
+
+function clearAllData() {
+  if(!confirm('Eliminar TODOS os dados (alunos, PIEPE e legislação)? Irreversível!')) return;
+  DB.alunos=[]; DB.piepe=[]; DB.leg=defaultLeg();
+  save();
+  toast('Todos os dados eliminados (legislação recarregada)','warn');
+  initDashboard();
+  renderImportStatus();
+}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg, type='') {
+  const t=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className='toast'+(type?' '+type:'');
+  el.innerHTML=`<span>${type==='ok'?'✅':type==='err'?'❌':type==='warn'?'⚠️':'ℹ️'}</span>${msg}`;
+  t.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+// Load persisted alerta states
+DB.alerta_estados = LS.get('alerta_estados') || {};
+updateBadges();
+initDashboard();
+renderImportStatus();
+pfpDiscs();
+</script>
+</body>
+</html>
